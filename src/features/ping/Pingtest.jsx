@@ -13,7 +13,7 @@ export default function PingTest() {
 
   async function startTest() {
     reset();
-
+//
     try {
       setStatus("listening");
 

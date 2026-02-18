@@ -13,7 +13,7 @@ export async function analyzePing(analyser, audioCtx) {
 
     let max = -Infinity;
     let index = 0;
-
+//
     for (let i = 0; i < freqData.length; i++) {
         if (freqData[i] > max) {
             max = freqData[i];
