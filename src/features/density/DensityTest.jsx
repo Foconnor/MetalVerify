@@ -191,7 +191,7 @@ function DensityTest() {
               position: "relative",
               height: "14px",
               borderRadius: "8px",
-              background: "linear-gradient(to right, red, yellow, green)"
+              background: "linear-gradient(to right, red, yellow, green, yellow, red)",
             }}
           >
             {/* Marker */}
