@@ -7,6 +7,7 @@ function DensityTest() {
   const [barData, setBarData] = useState({ length: "", height: "", width: "", weight: "" });
   const [result, setResult] = useState(null);
   const [confidence, setConfidence] = useState(null);
+  const [barPosition, setBarPosition] = useState(50);
 
   const handleCoinChange = (e) => {
     setCoinData({ ...coinData, [e.target.name]: e.target.value });
@@ -26,11 +27,21 @@ function DensityTest() {
     return Math.round(score);
   };
 
+  const calculateBarPosition = (density) => {
+    const EXPECTED = 10.49;
+    const MAX_RANGE = 1;
+
+    const deviation = density - EXPECTED;
+    const position = 50 + (deviation / MAX_RANGE) * 50;
+    return Math.min(100, Math.max(0, position));
+  };
+
   const handleCoinCalculate = () => {
     try {
       const density = calculateCoinDensity(coinData.diameter, coinData.thickness, coinData.weight);
       setResult(`Coin Density: ${density} g/cm³`);
       setConfidence(calculateConfidence(density));
+      setBarPosition(calculateBarPosition(density));
     } catch (err) {
       alert(err.message);
     }
@@ -41,6 +52,7 @@ function DensityTest() {
       const density = calculateBarDensity(barData.length, barData.height, barData.width, barData.weight);
       setResult(`Bar Density: ${density} g/cm³`);
       setConfidence(calculateConfidence(density));
+      setBarPosition(calculateBarPosition(density));
     } catch (err) {
       alert(err.message);
     }
@@ -71,10 +83,10 @@ function DensityTest() {
         <div>
           {/* Diameter */}
           <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+            <label style={{ marginRight: "0.5rem" }}>Diameter:</label>
             <input
               type="number"
               name="diameter"
-              placeholder="Diameter"
               value={coinData.diameter}
               onChange={handleCoinChange}
               style={{ marginRight: "0.5rem" }}
@@ -84,10 +96,10 @@ function DensityTest() {
 
           {/* Thickness */}
           <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+            <label style={{ marginRight: "0.5rem" }}>Thickness:</label>
             <input
               type="number"
               name="thickness"
-              placeholder="Thickness"
               value={coinData.thickness}
               onChange={handleCoinChange}
               style={{ marginRight: "0.5rem" }}
@@ -97,10 +109,10 @@ function DensityTest() {
 
           {/* Weight */}
           <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+            <label style={{ marginRight: "0.5rem" }}>Weight:</label>
             <input
               type="number"
               name="weight"
-              placeholder="Weight"
               value={coinData.weight}
               onChange={handleCoinChange}
               style={{ marginRight: "0.5rem" }}
@@ -116,10 +128,10 @@ function DensityTest() {
         <div>
           {/* Length */}
           <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+            <label style={{ marginRight: "0.5rem" }}>Length:</label>
             <input
               type="number"
               name="length"
-              placeholder="Length"
               value={barData.length}
               onChange={handleBarChange}
               style={{ marginRight: "0.5rem" }}
@@ -129,10 +141,10 @@ function DensityTest() {
 
           {/* Height */}
           <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+            <label style={{ marginRight: "0.5rem" }}>Height:</label>
             <input
               type="number"
               name="height"
-              placeholder="Height"
               value={barData.height}
               onChange={handleBarChange}
               style={{ marginRight: "0.5rem" }}
@@ -142,10 +154,10 @@ function DensityTest() {
 
           {/* Width */}
           <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+            <label style={{ marginRight: "0.5rem" }}>Width:</label>
             <input
               type="number"
               name="width"
-              placeholder="Width"
               value={barData.width}
               onChange={handleBarChange}
               style={{ marginRight: "0.5rem" }}
@@ -155,10 +167,10 @@ function DensityTest() {
 
           {/* Weight */}
           <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+            <label style={{ marginRight: "0.5rem" }}>Weight:</label>
             <input
               type="number"
               name="weight"
-              placeholder="Weight"
               value={barData.weight}
               onChange={handleBarChange}
               style={{ marginRight: "0.5rem" }}
@@ -171,50 +183,50 @@ function DensityTest() {
 
       {result && <h2 style={{ marginTop: "1rem" }}>{result}</h2>}
       {confidence !== null && (
-  <div style={{ marginTop: "1rem", width: "260px" }}>
-    
-    {/* Gradient bar */}
-    <div
-      style={{
-        position: "relative",
-        height: "14px",
-        borderRadius: "8px",
-        background: "linear-gradient(to right, red, yellow, green)"
-      }}
-    >
-      {/* Marker */}
-      <div
-        style={{
-          position: "absolute",
-          top: "-4px",
-          left: `calc(${confidence}% - 2px)`,
-          width: "4px",
-          height: "22px",
-          backgroundColor: "#fff"
-        }}
-      />
-    </div>
+        <div style={{ marginTop: "1rem", width: "260px" }}>
+          
+          {/* Gradient bar */}
+          <div
+            style={{
+              position: "relative",
+              height: "14px",
+              borderRadius: "8px",
+              background: "linear-gradient(to right, red, yellow, green)"
+            }}
+          >
+            {/* Marker */}
+            <div
+              style={{
+                position: "absolute",
+                top: "-4px",
+                left: `calc(${barPosition}% - 2px)`,
+                width: "4px",
+                height: "22px",
+                backgroundColor: "#fff"
+              }}
+            />
+          </div>
 
-    {/* Labels */}
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        fontSize: "0.75rem",
-        marginTop: "4px",
-        color: "#ccc"
-      }}
-    >
-      <span>0%</span>
-      <span>50%</span>
-      <span>100%</span>
-    </div>
+          {/* Labels */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "0.75rem",
+              marginTop: "4px",
+              color: "#ccc"
+            }}
+          >
+            <span>LOW</span>
+            <span>PERFECT</span>
+            <span>High</span>
+          </div>
 
-    <p style={{ marginTop: "0.5rem" }}>
-      Confidence: <strong style={{ fontSize: "2.8rem" }}>{confidence}%</strong>
-    </p>
-  </div>
-)}
+          <p style={{ marginTop: "0.5rem" }}>
+            Confidence: <strong style={{ fontSize: "2.8rem" }}>{confidence}%</strong>
+          </p>
+        </div>
+      )}
     </div>
 
   )
