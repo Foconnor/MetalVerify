@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
-import { getMicStream } from "src/features/ping/pingUtils.js";
-import { analyzePing } from "src/features/ping/pingUtils.js";
+import { getMicStream, analyzePing } from "./pingUtils";
+
 
 export default function PingTest() {
   const [status, setStatus] = useState("idle");
