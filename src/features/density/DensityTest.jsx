@@ -1,5 +1,6 @@
 import React,{ useState } from 'react'
 import { calculateCoinDensity,calculateBarDensity } from './DensityCalculations.js'
+import "./DensityTest.css"
 
 function DensityTest() {
   const [type, setType] = useState(""); // Coin or Bar
@@ -82,102 +83,102 @@ function DensityTest() {
       {type === "coin" && (
         <div>
           {/* Diameter */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
-            <label style={{ marginRight: "0.5rem" }}>Diameter:</label>
+          <div className="form-row">
+            <label className="form-label">Diameter:</label>
             <input
               type="number"
               name="diameter"
               value={coinData.diameter}
               onChange={handleCoinChange}
-              style={{ marginRight: "0.5rem" }}
+              className="form-input"
             />
             <span>cm</span>
           </div>
 
           {/* Thickness */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
-            <label style={{ marginRight: "0.5rem" }}>Thickness:</label>
+          <div className="form-row">
+            <label className="form-label">Thickness:</label>
             <input
               type="number"
               name="thickness"
               value={coinData.thickness}
               onChange={handleCoinChange}
-              style={{ marginRight: "0.5rem" }}
+              className="form-input"
             />
             <span>cm</span>
           </div>
 
           {/* Weight */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
-            <label style={{ marginRight: "0.5rem" }}>Weight:</label>
+          <div className="form-row">
+            <label className="form-label">Weight:</label>
             <input
               type="number"
               name="weight"
               value={coinData.weight}
               onChange={handleCoinChange}
-              style={{ marginRight: "0.5rem" }}
+              className="form-input"
             />
             <span>g</span>
           </div>
 
-          <button onClick={handleCoinCalculate} style={{ marginTop: "1rem" }}>Calculate</button>
+          <button onClick={handleCoinCalculate} className="form-button">Calculate</button>
         </div>
       )}
 
       {type === "bar" && (
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
           {/* Length */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
-            <label style={{ marginRight: "0.5rem" }}>Length:</label>
+          <div className="form-row">
+            <label className="form-label">Length:</label>
             <input
               type="number"
               name="length"
               value={barData.length}
               onChange={handleBarChange}
-              style={{ marginRight: "0.5rem" }}
+              className="form-input"
             />
             <span>cm</span>
           </div>
 
           {/* Height */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
-            <label style={{ marginRight: "0.5rem" }}>Height:</label>
+          <div className="form-row">
+            <label className="form-label">Height:</label>
             <input
               type="number"
               name="height"
               value={barData.height}
               onChange={handleBarChange}
-              style={{ marginRight: "0.5rem" }}
+              className="form-input"
             />
             <span>cm</span>
           </div>
 
           {/* Width */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
-            <label style={{ marginRight: "0.5rem" }}>Width:</label>
+          <div className="form-row">
+            <label className="form-label">Width:</label>
             <input
               type="number"
               name="width"
               value={barData.width}
               onChange={handleBarChange}
-              style={{ marginRight: "0.5rem" }}
+              className="form-input"
             />
             <span>cm</span>
           </div>
 
           {/* Weight */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
-            <label style={{ marginRight: "0.5rem" }}>Weight:</label>
+          <div className="form-row">
+            <label className="form-label">Weight:</label>
             <input
               type="number"
               name="weight"
               value={barData.weight}
               onChange={handleBarChange}
-              style={{ marginRight: "0.5rem" }}
+              className="form-input"
             />
             <span>g</span>
           </div>
-          <button onClick={handleBarCalculate} style={{ marginLeft: "1rem" }}>Calculate</button>
+          <button onClick={handleBarCalculate} className="form-button">Calculate</button>
         </div>
       )}
 
