@@ -2,13 +2,41 @@ import React,{ useState } from 'react'
 import { calculateCoinDensity,calculateBarDensity } from './DensityCalculations.js'
 import "./DensityTest.css"
 
+const COIN_SPECS = {
+    eagle: {
+      name: "American Silver Eagle",
+      diameter: 4.06,
+      thickness: 0.298,
+      weight: 31.103,
+    },
+    maple:{
+      name: "Canadian Silver Maple Leaf",
+      diameter: 3.8,
+      thickness: 0.329,
+      weight: 31.103,
+    },
+    britannia:{
+      name: "British Silver Britannia",
+      diameter: 3.861,
+      thickness: 0.3,
+      weight: 31.103,
+    },
+    panda: {
+      name: "Chinese Silver Panda",
+      diameter: 4.0,
+      thickness: 0.27,
+      weight: 30,
+    }
+  }
+
 function DensityTest() {
   const [type, setType] = useState(""); // Coin or Bar
   const [coinData, setCoinData] = useState({ diameter: "", thickness: "", weight: "" });
   const [barData, setBarData] = useState({ length: "", height: "", width: "", weight: "" });
-  const [result, setResult] = useState(null);
+  const [calculatedDensity, setCalculatedDensity] = useState(null);
   const [confidence, setConfidence] = useState(null);
   const [barPosition, setBarPosition] = useState(50);
+  const [selectedCoin, setSelectedCoin] = useState("unknown");
 
   const handleCoinChange = (e) => {
     setCoinData({ ...coinData, [e.target.name]: e.target.value });
@@ -16,6 +44,16 @@ function DensityTest() {
 
   const handleBarChange = (e) => {
     setBarData({ ...barData, [e.target.name]: e.target.value });
+  };
+  
+  const handleCoinSelect = (e) => {
+    const value = e.target.value;
+    setSelectedCoin(value);
+  };
+
+  const getExpectedSpecs = () => {
+    if (selectedCoin === "unknown") return null;
+    return COIN_SPECS[selectedCoin];
   };
 
   const calculateConfidence = (density) => {
@@ -40,7 +78,11 @@ function DensityTest() {
   const handleCoinCalculate = () => {
     try {
       const density = calculateCoinDensity(coinData.diameter, coinData.thickness, coinData.weight);
-      setResult(`Coin Density: ${density} g/cm³`);
+      
+      const expectedDensity = 10.49; // g/cm³ for silver
+      const deviation = Math.abs(density - expectedDensity);
+      
+      setCalculatedDensity(density);
       setConfidence(calculateConfidence(density));
       setBarPosition(calculateBarPosition(density));
     } catch (err) {
@@ -51,7 +93,7 @@ function DensityTest() {
   const handleBarCalculate = () => {
     try {
       const density = calculateBarDensity(barData.length, barData.height, barData.width, barData.weight);
-      setResult(`Bar Density: ${density} g/cm³`);
+      setCalculatedDensity(density);
       setConfidence(calculateConfidence(density));
       setBarPosition(calculateBarPosition(density));
     } catch (err) {
@@ -82,6 +124,22 @@ function DensityTest() {
 
       {type === "coin" && (
         <div>
+          {/* Coin Selector */}
+          <div className="form-row">
+            <label className="form-label">Select Coin:</label>
+            <select
+              value={selectedCoin}
+              onChange={handleCoinSelect}
+              className="form-input"
+            >
+              <option value="unknown">Not Sure / Don't Know</option>
+              <option value="eagle">American Silver Eagle</option>
+              <option value="maple">Canadian Maple Leaf</option>
+              <option value="britannia">Britannia</option>
+              <option value="panda">Chinese Panda (30g)</option>
+            </select>
+          </div>
+
           {/* Diameter */}
           <div className="form-row">
             <label className="form-label">Diameter:</label>
@@ -182,7 +240,51 @@ function DensityTest() {
         </div>
       )}
 
-      {result && <h2 style={{ marginTop: "1rem" }}>{result}</h2>}
+      {calculatedDensity && (
+        <div style={{ marginTop: "1.5rem", textAlign: "left", width: "320px" }}>
+          
+          <h3>Density Comparison</h3>
+
+          <p>
+            <strong>Pure Silver Expected:</strong> 10.49 g/cm³
+          </p>
+          <p>
+            <strong>Your Density:</strong> {calculatedDensity} g/cm³
+          </p>
+
+          {selectedCoin !== "unknown" && (
+            <>
+              <h3 style={{ marginTop: "1rem" }}>Measurement Comparison</h3>
+
+              <table style={{ width: "100%", fontSize: "0.9rem" }}>
+                <tbody>
+                  <tr>
+                    <td><strong>Measurement</strong></td>
+                    <td><strong>Expected</strong></td>
+                    <td><strong>Yours</strong></td>
+                  </tr>
+                  <tr>
+                    <td>Diameter</td>
+                    <td>{getExpectedSpecs().diameter} cm</td>
+                    <td>{coinData.diameter} cm</td>
+                  </tr>
+                  <tr>
+                    <td>Thickness</td>
+                    <td>{getExpectedSpecs().thickness} cm</td>
+                    <td>{coinData.thickness} cm</td>
+                  </tr>
+                  <tr>
+                    <td>Weight</td>
+                    <td>{getExpectedSpecs().weight} g</td>
+                    <td>{coinData.weight} g</td>
+                  </tr>
+                </tbody>
+              </table>
+            </>
+          )}
+        </div>
+      )}
+
       {confidence !== null && (
         <div style={{ marginTop: "1rem", width: "260px" }}>
           
