@@ -1,5 +1,7 @@
 import { useState, useRef } from "react";
 import { getMicStream, analyzePing } from "./pingUtils";
+import { COIN_PROFILES } from "./coinProfiles";
+
 
 
 export default function PingTest() {
@@ -10,6 +12,10 @@ export default function PingTest() {
   const audioCtxRef = useRef(null);
   const analyserRef = useRef(null);
   const streamRef = useRef(null);
+  const [selectedCoin, setSelectedCoin] =
+      useState("american_silver_eagle");
+
+
 
   async function startTest() {
     reset();
@@ -47,14 +53,19 @@ export default function PingTest() {
   }
 
   function finalize({ freq, duration }) {
-    const ideal = 5000;
-    const maxDeviation = 1000;
-    const maxDur = 1.2;
+    const profile = COIN_PROFILES[selectedCoin];
+
+    const ideal = profile.idealFreq;
+    const maxDeviation = profile.tolerance;
+    const maxDur = profile.minDuration;
+
 
     const deviation = Math.abs(freq - ideal);
 
     const freqScore =
-        Math.max(0, 1 - deviation / maxDeviation) * 40;
+        deviation <= maxDeviation
+            ? 40 * (1 - deviation / maxDeviation)
+            : 0;
 
     const durScore =
         Math.min(duration / maxDur, 1) * 35;
@@ -133,6 +144,19 @@ export default function PingTest() {
   return (
       <div style={box}>
         <h2>Silver Ping Test</h2>
+
+        <select
+            value={selectedCoin}
+            onChange={(e) => setSelectedCoin(e.target.value)}
+        >
+          {Object.entries(COIN_PROFILES).map(
+              ([key, coin]) => (
+                  <option key={key} value={key}>
+                    {coin.name}
+                  </option>
+              )
+          )}
+        </select>
 
         <button onClick={startTest}>
           Start Test
