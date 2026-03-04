@@ -8,24 +8,28 @@ const COIN_SPECS = {
       diameter: 4.06,
       thickness: 0.298,
       weight: 31.103,
+      geometricDensity: 8.06,
     },
     maple:{
       name: "Canadian Silver Maple Leaf",
       diameter: 3.8,
       thickness: 0.329,
       weight: 31.103,
+      geometricDensity: 8.34
     },
     britannia:{
       name: "British Silver Britannia",
       diameter: 3.861,
       thickness: 0.3,
       weight: 31.103,
+      geometricDensity: 8.86
     },
     panda: {
       name: "Chinese Silver Panda",
       diameter: 4.0,
       thickness: 0.27,
       weight: 30,
+      geometricDensity: 8.84
     }
   }
 
@@ -57,7 +61,7 @@ function DensityTest() {
   };
 
   const calculateConfidence = (density) => {
-    const EXPECTED = 10.49;
+    const EXPECTED = selectedCoin === "unknown" ? 10.49 : getExpectedSpecs().geometricDensity;
     const TOLERANCE = 0.5; // Define tolerance in g/cm³
 
     const deviation = Math.abs(density - EXPECTED);
@@ -67,7 +71,7 @@ function DensityTest() {
   };
 
   const calculateBarPosition = (density) => {
-    const EXPECTED = 10.49;
+    const EXPECTED = selectedCoin === "unknown" ? 10.49 : getExpectedSpecs().geometricDensity;
     const MAX_RANGE = 1;
 
     const deviation = density - EXPECTED;
@@ -246,7 +250,7 @@ function DensityTest() {
           <h3>Density Comparison</h3>
 
           <p>
-            <strong>Pure Silver Expected:</strong> 10.49 g/cm³
+            <strong>Pure Silver Expected:</strong> {selectedCoin === "unknown" ? "10.49" : getExpectedSpecs().geometricDensity} g/cm³
           </p>
           <p>
             <strong>Your Density:</strong> {calculatedDensity} g/cm³
