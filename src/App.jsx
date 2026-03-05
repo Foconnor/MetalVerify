@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import './App.css'
+
+import Accounts from './features/Account/Accounts';
 import PingTest from './features/ping/Pingtest';
 import DensityTest from './features/density/DensityTest';
 
@@ -8,6 +10,9 @@ function App() {
 
   return (
     <div style={{ textAlign: "center", marginTop: "2rem" }}>
+      
+      <Accounts />
+      
       <h1>Metal Verify</h1>
 
       <button onClick={() => setActiveFeature("ping")}>
