@@ -1,23 +1,47 @@
 import { useState, useRef } from "react";
 import { getMicStream, analyzePing } from "./pingUtils";
+import { COIN_PROFILES } from "./coinProfiles";
+
 
 
 export default function PingTest() {
+  const [errorMessage, setErrorMessage] = useState(null);
   const [status, setStatus] = useState("idle");
   const [result, setResult] = useState(null);
   const [metrics, setMetrics] = useState(null);
 
+
   const audioCtxRef = useRef(null);
   const analyserRef = useRef(null);
   const streamRef = useRef(null);
+  const [selectedCoin, setSelectedCoin] =
+      useState("american_silver_eagle");
+
+
 
   async function startTest() {
     reset();
-//
+    setErrorMessage(null);
+
     try {
-      setStatus("listening");
+      if (!navigator.mediaDevices) {
+        throw new Error("MediaDevices API not supported in this browser.");
+      }
+
+      if (location.protocol !== "https:" && location.hostname !== "localhost") {
+        throw new Error("Microphone access requires HTTPS.");
+      }
+
+      setStatus("requesting microphone");
 
       streamRef.current = await getMicStream();
+
+      if (!streamRef.current) {
+        throw new Error("No microphone stream returned.");
+      }
+
+      setStatus("initializing audio");
+
       audioCtxRef.current = new AudioContext();
 
       const source =
@@ -40,21 +64,27 @@ export default function PingTest() {
       );
 
       finalize(data);
+
     } catch (err) {
-      console.error(err);
-      setStatus("error");
+      handleAudioError(err);
     }
   }
 
+
   function finalize({ freq, duration }) {
-    const ideal = 5000;
-    const maxDeviation = 1000;
-    const maxDur = 1.2;
+    const profile = COIN_PROFILES[selectedCoin];
+
+    const ideal = profile.idealFreq;
+    const maxDeviation = profile.tolerance;
+    const maxDur = profile.minDuration;
+
 
     const deviation = Math.abs(freq - ideal);
 
     const freqScore =
-        Math.max(0, 1 - deviation / maxDeviation) * 40;
+        deviation <= maxDeviation
+            ? 40 * (1 - deviation / maxDeviation)
+            : 0;
 
     const durScore =
         Math.min(duration / maxDur, 1) * 35;
@@ -130,15 +160,79 @@ export default function PingTest() {
     transition: "width 0.5s ease"
   };
 
+  function handleAudioError(err) {
+    console.error("Ping Test Error:", err);
+
+    let message = "Unknown error occurred.";
+
+    if (err.name === "NotAllowedError") {
+      message = "Microphone access was denied. Please allow microphone permissions.";
+    }
+
+    else if (err.name === "NotFoundError") {
+      message = "No microphone device found.";
+    }
+
+    else if (err.name === "NotReadableError") {
+      message = "Microphone is already in use by another application.";
+    }
+
+    else if (err.name === "OverconstrainedError") {
+      message = "Requested microphone constraints cannot be satisfied.";
+    }
+
+    else if (err.name === "SecurityError") {
+      message = "Microphone access blocked due to security restrictions.";
+    }
+
+    else if (err.message) {
+      message = err.message;
+    }
+
+    setErrorMessage(message);
+    setStatus("error");
+    cleanup();
+  }
+
+
   return (
       <div style={box}>
         <h2>Silver Ping Test</h2>
+
+        <select
+            value={selectedCoin}
+            onChange={(e) => setSelectedCoin(e.target.value)}
+        >
+          {Object.entries(COIN_PROFILES).map(
+              ([key, coin]) => (
+                  <option key={key} value={key}>
+                    {coin.name}
+                  </option>
+              )
+          )}
+        </select>
 
         <button onClick={startTest}>
           Start Test
         </button>
 
         <p>Status: {status}</p>
+
+        {errorMessage && (
+            <div
+                style={{
+                  marginTop: 10,
+                  padding: 10,
+                  background: "#ffe6e6",
+                  border: "1px solid red",
+                  borderRadius: 6,
+                  color: "darkred"
+                }}
+            >
+              <strong>Error:</strong> {errorMessage}
+            </div>
+        )}
+
 
         {metrics && (
             <div>
@@ -191,6 +285,7 @@ export default function PingTest() {
               >
                 {result}
               </p>
+
             </div>
         )}
       </div>
