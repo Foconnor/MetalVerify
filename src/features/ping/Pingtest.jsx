@@ -1,6 +1,10 @@
 import { useState, useRef } from "react";
 import { getMicStream, analyzePing } from "./pingUtils";
-import { COIN_PROFILES } from "./coinProfiles";
+// import { COIN_PROFILES } from "./coinProfiles";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase/firebaseConfig";
+import { useEffect } from "react";
+
 
 
 
@@ -9,14 +13,41 @@ export default function PingTest() {
   const [status, setStatus] = useState("idle");
   const [result, setResult] = useState(null);
   const [metrics, setMetrics] = useState(null);
+  const [coins, setCoins] = useState([]);
+  const [selectedCoinId, setSelectedCoinId] = useState(null);
+  const selectedCoin = coins.find(c => c.id === selectedCoinId);
+
 
 
   const audioCtxRef = useRef(null);
   const analyserRef = useRef(null);
   const streamRef = useRef(null);
-  const [selectedCoin, setSelectedCoin] =
-      useState("american_silver_eagle");
 
+
+
+  useEffect(() => {
+    async function fetchCoins() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "coinProfiles"));
+
+        const coinList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
+        setCoins(coinList);
+
+        if (coinList.length > 0) {
+          setSelectedCoinId(coinList[0].id);
+        }
+
+      } catch (error) {
+        console.error("Error fetching coins:", error);
+      }
+    }
+
+    fetchCoins();
+  }, []);
 
 
   async function startTest() {
@@ -49,10 +80,13 @@ export default function PingTest() {
               streamRef.current
           );
 
-      analyserRef.current =
-          audioCtxRef.current.createAnalyser();
+      analyserRef.current = audioCtxRef.current.createAnalyser();
 
-      analyserRef.current.fftSize = 2048;
+      analyserRef.current.fftSize = 4096;
+      analyserRef.current.minDecibels = -90;
+      analyserRef.current.maxDecibels = -10;
+      analyserRef.current.smoothingTimeConstant = 0.25;
+
 
       source.connect(analyserRef.current);
 
@@ -71,12 +105,15 @@ export default function PingTest() {
   }
 
 
-  function finalize({ freq, duration }) {
-    const profile = COIN_PROFILES[selectedCoin];
+  function finalize({ freq, duration, harmonics }) {
+    // const profile = COIN_PROFILES[selectedCoin];
 
-    const ideal = profile.idealFreq;
-    const maxDeviation = profile.tolerance;
-    const maxDur = profile.minDuration;
+    if (!selectedCoin) return;
+
+    const ideal = selectedCoin.idealFreq;
+    const maxDeviation = selectedCoin.tolerance;
+    const maxDur = selectedCoin.minDuration;
+
 
 
     const deviation = Math.abs(freq - ideal);
@@ -95,9 +132,17 @@ export default function PingTest() {
                 duration > 0.4 ? 10 :
                     5;
 
+    const harmonicScore =
+        harmonics >= 3 ? 25 :
+            harmonics === 2 ? 18 :
+                harmonics === 1 ? 10 :
+                    0;
+
+
     const confidence = Math.round(
-        freqScore + durScore + stabilityScore
+        (freqScore + durScore + stabilityScore + harmonicScore) / 1.25
     );
+
 
     let verdict;
 
@@ -124,16 +169,25 @@ export default function PingTest() {
   }
 
   function cleanup() {
-    streamRef.current?.getTracks().forEach((t) =>
-        t.stop()
-    );
-    audioCtxRef.current?.close();
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+
+    if (audioCtxRef.current && audioCtxRef.current.state !== "closed") {
+      audioCtxRef.current.close();
+      audioCtxRef.current = null;
+    }
+
+    analyserRef.current = null;
   }
+
 
   function reset() {
     cleanup();
     setMetrics(null);
     setResult(null);
+    setStatus("idle");
   }
 
   // Styles
@@ -200,17 +254,16 @@ export default function PingTest() {
         <h2>Silver Ping Test</h2>
 
         <select
-            value={selectedCoin}
-            onChange={(e) => setSelectedCoin(e.target.value)}
+            value={selectedCoinId || ""}
+            onChange={(e) => setSelectedCoinId(e.target.value)}
         >
-          {Object.entries(COIN_PROFILES).map(
-              ([key, coin]) => (
-                  <option key={key} value={key}>
-                    {coin.name}
-                  </option>
-              )
-          )}
+          {coins.map((coin) => (
+              <option key={coin.id} value={coin.id}>
+                {coin.name}
+              </option>
+          ))}
         </select>
+
 
         <button onClick={startTest}>
           Start Test
