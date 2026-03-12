@@ -1,29 +1,67 @@
 import { useState } from 'react'
 import './App.css'
-import PingTest from './features/ping/Pingtest';
-import DensityTest from './features/density/DensityTest';
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+
+import Home from './pages/Home.jsx';
+import PingPage from './pages/PingPage.jsx';
+import DensityPage from './pages/DensityPage.jsx';
+
+import Accounts from './features/Account/Accounts.jsx';
+import Login from './features/Account/Login.jsx';
+import Signup from './features/Account/Signup.jsx'
 
 function App() {
-  const [activeFeature, setActiveFeature] = useState(null);
 
   return (
-    <div style={{ textAlign: "center", marginTop: "2rem" }}>
-      <h1>Metal Verify</h1>
+    <Router>
+      <div style={{display:'flex', flexDirection: "column"}}>
 
-      <button onClick={() => setActiveFeature("ping")}>
-        Run Ping Test
-      </button>
+        {/* SIDEBAR */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            padding: "1rem 2rem",
+            borderBottom: "1px solid gray"
+          }}
+        >
+         <div>
+          <h3>Metal Verify</h3>
+         </div>
+          
+          <div>
+            <nav style={{ display: "flex", gap: "2rem" }}>
+              <Link to="/">Home</Link>
+              <Link to="/ping">Ping Test</Link>
+              <Link to="/density">Density Test</Link>
+            </nav>
+          </div>
+          
+          <div>
+            <Accounts />
+          </div>
+        </div>
 
-      <button onClick={() => setActiveFeature("density")}>
-        Run Density Test
-      </button>
+        {/* MAIN CONTENT */}
+        <div style={{ flex: 1, padding: "2rem" }}>
 
-      <div style={{ marginTop: "2rem" }}>
-        {activeFeature === "ping" && <PingTest />}
-        {activeFeature === "density" && <DensityTest />}
+          <Routes>
+            <Route path="/" element={<Home />} />
+
+            {/*Testing Pages */}
+            <Route path="/ping" element={<PingPage />} />
+            <Route path="/density" element={<DensityPage />} />
+
+            {/*Account Pages */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+          </Routes>
+          
+        </div>
       </div>
-    </div>
-  );
+    </Router>
+  )
 
 }
 
