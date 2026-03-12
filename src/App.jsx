@@ -5,13 +5,16 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from './pages/Home.jsx';
 import PingPage from './pages/PingPage.jsx';
 import DensityPage from './pages/DensityPage.jsx';
-import Accounts from './features/Account/Accounts';
+
+import Accounts from './features/Account/Accounts.jsx';
+import Login from './features/Account/Login.jsx';
+import Signup from './features/Account/Signup.jsx'
 
 function App() {
 
   return (
     <Router>
-      <div style={{display:'flex'}}>
+      <div style={{display:'flex', flexDirection: "column"}}>
 
         {/* SIDEBAR */}
         <div
@@ -23,27 +26,36 @@ function App() {
             borderBottom: "1px solid gray"
           }}
         >
+         <div>
           <h3>Metal Verify</h3>
-
-          <nav style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <Link to="/">Home</Link>
-            <Link to="/ping">Ping Test</Link>
-            <Link to="/density">Density Test</Link>
-          </nav>
+         </div>
+          
+          <div>
+            <nav style={{ display: "flex", gap: "2rem" }}>
+              <Link to="/">Home</Link>
+              <Link to="/ping">Ping Test</Link>
+              <Link to="/density">Density Test</Link>
+            </nav>
+          </div>
+          
+          <div>
+            <Accounts />
+          </div>
         </div>
 
         {/* MAIN CONTENT */}
         <div style={{ flex: 1, padding: "2rem" }}>
 
-          {/* Top right login */}
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <Accounts />
-          </div>
-
           <Routes>
             <Route path="/" element={<Home />} />
+
+            {/*Testing Pages */}
             <Route path="/ping" element={<PingPage />} />
             <Route path="/density" element={<DensityPage />} />
+
+            {/*Account Pages */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
           </Routes>
           
         </div>
