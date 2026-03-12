@@ -1,12 +1,46 @@
 import React,{ useState } from 'react'
 import { calculateCoinDensity,calculateBarDensity } from './DensityCalculations.js'
+import "./DensityTest.css"
+
+const COIN_SPECS = {
+    eagle: {
+      name: "American Silver Eagle",
+      diameter: 4.06,
+      thickness: 0.298,
+      weight: 31.103,
+      geometricDensity: 8.06,
+    },
+    maple:{
+      name: "Canadian Silver Maple Leaf",
+      diameter: 3.8,
+      thickness: 0.329,
+      weight: 31.103,
+      geometricDensity: 8.34
+    },
+    britannia:{
+      name: "British Silver Britannia",
+      diameter: 3.861,
+      thickness: 0.3,
+      weight: 31.103,
+      geometricDensity: 8.86
+    },
+    panda: {
+      name: "Chinese Silver Panda",
+      diameter: 4.0,
+      thickness: 0.27,
+      weight: 30,
+      geometricDensity: 8.84
+    }
+  }
 
 function DensityTest() {
   const [type, setType] = useState(""); // Coin or Bar
   const [coinData, setCoinData] = useState({ diameter: "", thickness: "", weight: "" });
   const [barData, setBarData] = useState({ length: "", height: "", width: "", weight: "" });
-  const [result, setResult] = useState(null);
+  const [calculatedDensity, setCalculatedDensity] = useState(null);
   const [confidence, setConfidence] = useState(null);
+  const [barPosition, setBarPosition] = useState(50);
+  const [selectedCoin, setSelectedCoin] = useState("unknown");
 
   const handleCoinChange = (e) => {
     setCoinData({ ...coinData, [e.target.name]: e.target.value });
@@ -15,9 +49,19 @@ function DensityTest() {
   const handleBarChange = (e) => {
     setBarData({ ...barData, [e.target.name]: e.target.value });
   };
+  
+  const handleCoinSelect = (e) => {
+    const value = e.target.value;
+    setSelectedCoin(value);
+  };
+
+  const getExpectedSpecs = () => {
+    if (selectedCoin === "unknown") return null;
+    return COIN_SPECS[selectedCoin];
+  };
 
   const calculateConfidence = (density) => {
-    const EXPECTED = 10.49;
+    const EXPECTED = selectedCoin === "unknown" ? 10.49 : getExpectedSpecs().geometricDensity;
     const TOLERANCE = 0.5; // Define tolerance in g/cm³
 
     const deviation = Math.abs(density - EXPECTED);
@@ -26,11 +70,25 @@ function DensityTest() {
     return Math.round(score);
   };
 
+  const calculateBarPosition = (density) => {
+    const EXPECTED = selectedCoin === "unknown" ? 10.49 : getExpectedSpecs().geometricDensity;
+    const MAX_RANGE = 1;
+
+    const deviation = density - EXPECTED;
+    const position = 50 + (deviation / MAX_RANGE) * 50;
+    return Math.min(100, Math.max(0, position));
+  };
+
   const handleCoinCalculate = () => {
     try {
       const density = calculateCoinDensity(coinData.diameter, coinData.thickness, coinData.weight);
-      setResult(`Coin Density: ${density} g/cm³`);
+      
+      const expectedDensity = 10.49; // g/cm³ for silver
+      const deviation = Math.abs(density - expectedDensity);
+      
+      setCalculatedDensity(density);
       setConfidence(calculateConfidence(density));
+      setBarPosition(calculateBarPosition(density));
     } catch (err) {
       alert(err.message);
     }
@@ -39,8 +97,9 @@ function DensityTest() {
   const handleBarCalculate = () => {
     try {
       const density = calculateBarDensity(barData.length, barData.height, barData.width, barData.weight);
-      setResult(`Bar Density: ${density} g/cm³`);
+      setCalculatedDensity(density);
       setConfidence(calculateConfidence(density));
+      setBarPosition(calculateBarPosition(density));
     } catch (err) {
       alert(err.message);
     }
@@ -69,152 +128,212 @@ function DensityTest() {
 
       {type === "coin" && (
         <div>
+          {/* Coin Selector */}
+          <div className="form-row">
+            <label className="form-label">Select Coin:</label>
+            <select
+              value={selectedCoin}
+              onChange={handleCoinSelect}
+              className="form-input"
+            >
+              <option value="unknown">Not Sure / Don't Know</option>
+              <option value="eagle">American Silver Eagle</option>
+              <option value="maple">Canadian Maple Leaf</option>
+              <option value="britannia">Britannia</option>
+              <option value="panda">Chinese Panda (30g)</option>
+            </select>
+          </div>
+
           {/* Diameter */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+          <div className="form-row">
+            <label className="form-label">Diameter:</label>
             <input
               type="number"
               name="diameter"
-              placeholder="Diameter"
               value={coinData.diameter}
               onChange={handleCoinChange}
-              style={{ marginRight: "0.5rem" }}
+              className="form-input"
             />
             <span>cm</span>
           </div>
 
           {/* Thickness */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+          <div className="form-row">
+            <label className="form-label">Thickness:</label>
             <input
               type="number"
               name="thickness"
-              placeholder="Thickness"
               value={coinData.thickness}
               onChange={handleCoinChange}
-              style={{ marginRight: "0.5rem" }}
+              className="form-input"
             />
             <span>cm</span>
           </div>
 
           {/* Weight */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+          <div className="form-row">
+            <label className="form-label">Weight:</label>
             <input
               type="number"
               name="weight"
-              placeholder="Weight"
               value={coinData.weight}
               onChange={handleCoinChange}
-              style={{ marginRight: "0.5rem" }}
+              className="form-input"
             />
             <span>g</span>
           </div>
 
-          <button onClick={handleCoinCalculate} style={{ marginTop: "1rem" }}>Calculate</button>
+          <button onClick={handleCoinCalculate} className="form-button">Calculate</button>
         </div>
       )}
 
       {type === "bar" && (
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
           {/* Length */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+          <div className="form-row">
+            <label className="form-label">Length:</label>
             <input
               type="number"
               name="length"
-              placeholder="Length"
               value={barData.length}
               onChange={handleBarChange}
-              style={{ marginRight: "0.5rem" }}
+              className="form-input"
             />
             <span>cm</span>
           </div>
 
           {/* Height */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+          <div className="form-row">
+            <label className="form-label">Height:</label>
             <input
               type="number"
               name="height"
-              placeholder="Height"
               value={barData.height}
               onChange={handleBarChange}
-              style={{ marginRight: "0.5rem" }}
+              className="form-input"
             />
             <span>cm</span>
           </div>
 
           {/* Width */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+          <div className="form-row">
+            <label className="form-label">Width:</label>
             <input
               type="number"
               name="width"
-              placeholder="Width"
               value={barData.width}
               onChange={handleBarChange}
-              style={{ marginRight: "0.5rem" }}
+              className="form-input"
             />
             <span>cm</span>
           </div>
 
           {/* Weight */}
-          <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem" }}>
+          <div className="form-row">
+            <label className="form-label">Weight:</label>
             <input
               type="number"
               name="weight"
-              placeholder="Weight"
               value={barData.weight}
               onChange={handleBarChange}
-              style={{ marginRight: "0.5rem" }}
+              className="form-input"
             />
             <span>g</span>
           </div>
-          <button onClick={handleBarCalculate} style={{ marginLeft: "1rem" }}>Calculate</button>
+          <button onClick={handleBarCalculate} className="form-button">Calculate</button>
         </div>
       )}
 
-      {result && <h2 style={{ marginTop: "1rem" }}>{result}</h2>}
+      {calculatedDensity && (
+        <div style={{ marginTop: "1.5rem", textAlign: "left", width: "320px" }}>
+          
+          <h3>Density Comparison</h3>
+
+          <p>
+            <strong>Pure Silver Expected:</strong> {selectedCoin === "unknown" ? "10.49" : getExpectedSpecs().geometricDensity} g/cm³
+          </p>
+          <p>
+            <strong>Your Density:</strong> {calculatedDensity} g/cm³
+          </p>
+
+          {selectedCoin !== "unknown" && (
+            <>
+              <h3 style={{ marginTop: "1rem" }}>Measurement Comparison</h3>
+
+              <table style={{ width: "100%", fontSize: "0.9rem" }}>
+                <tbody>
+                  <tr>
+                    <td><strong>Measurement</strong></td>
+                    <td><strong>Expected</strong></td>
+                    <td><strong>Yours</strong></td>
+                  </tr>
+                  <tr>
+                    <td>Diameter</td>
+                    <td>{getExpectedSpecs().diameter} cm</td>
+                    <td>{coinData.diameter} cm</td>
+                  </tr>
+                  <tr>
+                    <td>Thickness</td>
+                    <td>{getExpectedSpecs().thickness} cm</td>
+                    <td>{coinData.thickness} cm</td>
+                  </tr>
+                  <tr>
+                    <td>Weight</td>
+                    <td>{getExpectedSpecs().weight} g</td>
+                    <td>{coinData.weight} g</td>
+                  </tr>
+                </tbody>
+              </table>
+            </>
+          )}
+        </div>
+      )}
+
       {confidence !== null && (
-  <div style={{ marginTop: "1rem", width: "260px" }}>
-    
-    {/* Gradient bar */}
-    <div
-      style={{
-        position: "relative",
-        height: "14px",
-        borderRadius: "8px",
-        background: "linear-gradient(to right, red, yellow, green)"
-      }}
-    >
-      {/* Marker */}
-      <div
-        style={{
-          position: "absolute",
-          top: "-4px",
-          left: `calc(${confidence}% - 2px)`,
-          width: "4px",
-          height: "22px",
-          backgroundColor: "#fff"
-        }}
-      />
-    </div>
+        <div style={{ marginTop: "1rem", width: "260px" }}>
+          
+          {/* Gradient bar */}
+          <div
+            style={{
+              position: "relative",
+              height: "14px",
+              borderRadius: "8px",
+              background: "linear-gradient(to right, red, yellow, green, yellow, red)",
+            }}
+          >
+            {/* Marker */}
+            <div
+              style={{
+                position: "absolute",
+                top: "-4px",
+                left: `calc(${barPosition}% - 2px)`,
+                width: "4px",
+                height: "22px",
+                backgroundColor: "#fff"
+              }}
+            />
+          </div>
 
-    {/* Labels */}
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        fontSize: "0.75rem",
-        marginTop: "4px",
-        color: "#ccc"
-      }}
-    >
-      <span>0%</span>
-      <span>50%</span>
-      <span>100%</span>
-    </div>
+          {/* Labels */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              fontSize: "0.75rem",
+              marginTop: "4px",
+              color: "#ccc"
+            }}
+          >
+            <span>LOW</span>
+            <span>PERFECT</span>
+            <span>High</span>
+          </div>
 
-    <p style={{ marginTop: "0.5rem" }}>
-      Confidence: <strong style={{ fontSize: "2.8rem" }}>{confidence}%</strong>
-    </p>
-  </div>
-)}
+          <p style={{ marginTop: "0.5rem" }}>
+            Confidence: <strong style={{ fontSize: "2.8rem" }}>{confidence}%</strong>
+          </p>
+        </div>
+      )}
     </div>
 
   )

@@ -1,0 +1,30 @@
+.form-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 40px;
+  gap: 0.5rem;
+  align-items: center;
+  width: 340px;
+  margin-bottom: 0.8rem;
+}
+
+.form-label {
+  text-align: right;
+  font-weight: 500;
+}
+
+.form-input {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #555;
+  background-color: #333;
+  color: white;
+}
+
+.form-button {
+  margin-top: 1rem;
+  padding: 0.6rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
