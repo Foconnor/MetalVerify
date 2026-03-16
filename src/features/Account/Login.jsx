@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { auth, provider } from "../../firebase/firebaseConfig.js";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import {useNavigate} from "react-router-dom"
 
 function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const loginEmail = async (e) => {
     e.preventDefault();
@@ -23,6 +25,8 @@ function Login() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       console.log("Google Login Succesful ",user);
+      navigate("/");
+
     } catch (error) {
       console.error("Google Login Error: ",error.code, error.message);
       alert(`Google login failed: ${error.message}`);
