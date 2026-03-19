@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./Accounts.css"
 import {Link} from "react-router-dom"
-import { auth, provider } from "../../firebase/firebaseConfig";
+import { auth} from "../../firebase/firebaseConfig";
 import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 
 function Accounts() {
@@ -39,7 +39,7 @@ function Accounts() {
         </div>
       ) : (
         <div className="account-buttons">
-          <p>Welcome {user.displayName || user.email}</p>
+          <p>Welcome <br />{user.displayName || user.email}</p>
           <button className="account-button" onClick={handleLogout}>Log Out</button>
         </div>
       )}
