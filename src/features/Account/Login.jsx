@@ -64,6 +64,7 @@ function Login() {
       console.error("Twitter error:", error);
     }
   };
+  
   return (
     <div style={styles.container}>
       <h2>Log In</h2>
