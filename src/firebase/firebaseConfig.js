@@ -1,7 +1,8 @@
 // src/firebase.js
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider} from "firebase/auth";
+import { getAuth} from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
+import { GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider } from "firebase/auth/web-extension";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -15,7 +16,12 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
-const provider = new GoogleAuthProvider();
-const analytics = getAnalytics(app);
 
-export { app, analytics, auth, provider };
+const googleProvider = new GoogleAuthProvider();
+const facebookProvider = new FacebookAuthProvider();
+const twitterProvider = new TwitterAuthProvider();
+const microsoftProvider = new OAuthProvider("microsoft.com");
+
+const analytics = getAnalytics(app);
+export {googleProvider,facebookProvider,twitterProvider,microsoftProvider}
+export { app, analytics, auth};
