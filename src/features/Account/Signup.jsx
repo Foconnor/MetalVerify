@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { auth } from "../../firebase/firebaseConfig";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+
 
 function Signup() {
 
@@ -8,6 +10,7 @@ function Signup() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -18,6 +21,8 @@ function Signup() {
       await updateProfile(userCred.user, {
         displayName: `${firstName} ${lastName}`,
       });
+
+      navigate("/");
 
       alert("Account created successfully!");
     } catch (error) {
