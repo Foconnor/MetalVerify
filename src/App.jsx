@@ -10,6 +10,14 @@ import Accounts from './features/Account/Accounts.jsx';
 import Login from './features/Account/Login.jsx';
 import Signup from './features/Account/Signup.jsx'
 
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
+
+// temp pages (create if not yet)
+import HistoryPage from "./pages/HistoryPage";
+import AdminDashboard from "./pages/AdminDashboard";
+
+
 function App() {
 
   return (
@@ -46,17 +54,38 @@ function App() {
         {/* MAIN CONTENT */}
         <div style={{ flex: 1, padding: "2rem" }}>
 
-          <Routes>
-            <Route path="/" element={<Home />} />
+            <Routes>
+                <Route path="/" element={<Home />} />
 
-            {/*Testing Pages */}
-            <Route path="/ping" element={<PingPage />} />
-            <Route path="/density" element={<DensityPage />} />
+                {/* Testing Pages */}
+                <Route path="/ping" element={<PingPage />} />
+                <Route path="/density" element={<DensityPage />} />
 
-            {/*Account Pages */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-          </Routes>
+                {/* Account Pages */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+
+                {/* 🔐 Protected Route (logged-in users only) */}
+                <Route
+                    path="/history"
+                    element={
+                        <ProtectedRoute>
+                            <HistoryPage />
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* 🛠 Admin Route */}
+                <Route
+                    path="/admin"
+                    element={
+                        <AdminRoute>
+                            <AdminDashboard />
+                        </AdminRoute>
+                    }
+                />
+            </Routes>
+
           
         </div>
       </div>
