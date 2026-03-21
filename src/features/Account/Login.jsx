@@ -63,5 +63,18 @@ function Login() {
       </div>
   );
 }
+const styles = {
+  container: {
+    maxWidth: "400px",
+    margin: "auto",
+    padding: "2rem",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+  },
+};
+
 
 export default Login;
