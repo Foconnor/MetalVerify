@@ -2,6 +2,7 @@ import { useState } from "react";
 import { auth } from "../../firebase/firebaseConfig";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { googleProvider, facebookProvider, microsoftProvider, twitterProvider } from "../../firebase/firebaseConfig.js";
 
 
 function Signup() {
@@ -27,6 +28,50 @@ function Signup() {
       alert("Account created successfully!");
     } catch (error) {
       console.error("Signup error:", error);
+    }
+  };
+
+  const loginGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      console.log("Google Login Succesful ",user);
+      navigate("/");
+
+    } catch (error) {
+      console.error("Google Login Error: ",error.code, error.message);
+      alert(`Google login failed: ${error.message}`);
+    }
+  };
+
+  const loginFacebook = async () => {
+    try {
+      const result = await signInWithPopup(auth, facebookProvider);
+      console.log("Facebook:", result.user);
+      navigate("/");
+    } catch (error) {
+      console.error("Facebook error:", error);
+    }
+  };
+
+  const loginMicrosoft = async () => {
+    try {
+      const result = await signInWithPopup(auth, microsoftProvider);
+      console.log("Microsoft:", result.user);
+      navigate("/");
+    } catch (error) {
+      console.error("Microsoft error:", error);
+    }
+  };
+
+
+  const loginTwitter = async () => {
+    try {
+      const result = await signInWithPopup(auth, twitterProvider);
+      console.log("Twitter:", result.user);
+      navigate("/");
+    } catch (error) {
+      console.error("Twitter error:", error);
     }
   };
 
@@ -69,6 +114,18 @@ function Signup() {
 
         <button type="submit">Sign Up</button>
       </form>
+
+      <hr />
+
+      <button style={{ marginTop: "10px" }} onClick={loginGoogle}>
+        Sign in with Google
+      </button>
+      
+
+      <button style={{ marginTop: "10px" }} onClick={loginFacebook}>Sign in with Facebook</button>
+      <button style={{ marginTop: "10px" }} onClick={loginMicrosoft}>Sign in with Microsoft</button>
+      <button style={{ marginTop: "10px" }} onClick={loginTwitter}>Sign in with Twitter</button>
+      
     </div>
   );
 }
