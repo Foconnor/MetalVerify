@@ -1,51 +1,45 @@
-import { useEffect, useState } from "react";
-import "./Accounts.css"
-import {Link} from "react-router-dom"
-import { auth} from "../../firebase/firebaseConfig";
-import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
+import "./Accounts.css";
+import { Link } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "../../firebase/firebaseConfig";
+import { useAuth } from "../../context/AuthContext";
 
 function Accounts() {
+    const { user, loading, isAdmin } = useAuth();
 
-  const [user, setUser] = useState(null);
+    if (loading) return <div>Loading...</div>;
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-
-    return () => {
-      unsubscribe();
+    const handleLogout = async () => {
+        await signOut(auth);
     };
-  }, []);
 
-  const handleLogout = async () => {
-    await signOut(auth);
-  };
+    return (
+        <div className="account-container">
+            <h2>Account</h2>
 
+            {!user ? (
+                <div className="account-buttons">
+                    <Link to="/login">
+                        <button className="account-button">Log In</button>
+                    </Link>
 
-  return (
-    <div className="account-container">
-      <h2>Account</h2>
+                    <Link to="/signup">
+                        <button className="account-button">Sign Up</button>
+                    </Link>
+                </div>
+            ) : (
+                <div className="account-buttons-form">
+                    <p>Welcome, {user.displayName || user.email}</p>
 
-      {!user ? (
-        <div className="account-buttons">
-          <Link to="/login">
-            <button className="account-button">Log In</button>
-          </Link>
+                    {isAdmin && <p>🛠 Admin Access</p>}
 
-          <Link to="/signup">
-            <button className="account-button">Sign Up</button>
-          </Link>
+                    <button className="account-button" onClick={handleLogout}>
+                        Log Out
+                    </button>
+                </div>
+            )}
         </div>
-      ) : (
-        <div className="account-buttons">
-          <p>Welcome <br />{user.displayName || user.email}</p>
-          <button className="account-button" onClick={handleLogout}>Log Out</button>
-        </div>
-      )}
-
-    </div>
-  );
+    );
 }
 
 export default Accounts;

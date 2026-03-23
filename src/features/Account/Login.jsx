@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { auth } from "../../firebase/firebaseConfig.js";
-import { googleProvider, facebookProvider, microsoftProvider, twitterProvider } from "../../firebase/firebaseConfig.js";
+import {  auth,googleProvider, facebookProvider, microsoftProvider, twitterProvider } from "../../firebase/firebaseConfig.js";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import {useNavigate} from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 
 function Login() {
 
@@ -15,22 +14,20 @@ function Login() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      alert("Logged in!");
+      navigate("/"); // redirect to home
     } catch (error) {
       console.error("Login error:", error);
+      alert("Invalid email or password");
     }
   };
 
   const loginGoogle = async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      console.log("Google Login Succesful ",user);
+      await signInWithPopup(auth, googleProvider);
       navigate("/");
-
     } catch (error) {
-      console.error("Google Login Error: ",error.code, error.message);
-      alert(`Google login failed: ${error.message}`);
+      console.error(error);
+      alert("Google login failed");
     }
   };
 
@@ -54,6 +51,8 @@ function Login() {
     }
   };
 
+  console.log(auth);
+  console.log(googleProvider);
 
   const loginTwitter = async () => {
     try {
@@ -66,30 +65,30 @@ function Login() {
   };
   
   return (
-    <div style={styles.container}>
-      <h2>Log In</h2>
+      <div style={styles.container}>
+        <h2>Log In</h2>
 
-      <form onSubmit={loginEmail} style={styles.form}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e)=>setEmail(e.target.value)}
-          required
-        />
+        <form onSubmit={loginEmail} style={styles.form}>
+          <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e)=>setEmail(e.target.value)}
+              required
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e)=>setPassword(e.target.value)}
-          required
-        />
+          <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e)=>setPassword(e.target.value)}
+              required
+          />
 
-        <button type="submit">Login</button>
-      </form>
+          <button type="submit">Login</button>
+        </form>
 
-      <hr />
+        <hr />
 
       <button style={{ marginTop: "10px" }} onClick={loginGoogle}>
         Sign in with Google
@@ -104,7 +103,6 @@ function Login() {
     </div>
   );
 }
-
 const styles = {
   container: {
     maxWidth: "400px",
@@ -117,5 +115,6 @@ const styles = {
     gap: "10px",
   },
 };
+
 
 export default Login;

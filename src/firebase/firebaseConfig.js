@@ -1,8 +1,7 @@
 // src/firebase.js
 import { initializeApp } from "firebase/app";
-import { getAuth} from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
-import { GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider } from "firebase/auth/web-extension";
+import {getAuth, GoogleAuthProvider, FacebookAuthProvider, TwitterAuthProvider, OAuthProvider} from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
