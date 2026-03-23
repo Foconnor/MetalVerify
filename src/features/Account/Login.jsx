@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { auth } from "../../firebase/firebaseConfig.js";
+import { auth, provider } from "../../firebase/firebaseConfig.js";
 import { googleProvider, facebookProvider, microsoftProvider, twitterProvider } from "../../firebase/firebaseConfig.js";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
