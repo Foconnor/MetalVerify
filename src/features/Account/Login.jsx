@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { auth, provider } from "../../firebase/firebaseConfig.js";
-import { googleProvider, facebookProvider, microsoftProvider, twitterProvider } from "../../firebase/firebaseConfig.js";
+import {  auth,googleProvider, facebookProvider, microsoftProvider, twitterProvider } from "../../firebase/firebaseConfig.js";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
-  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +23,7 @@ function Login() {
 
   const loginGoogle = async () => {
     try {
-      await signInWithPopup(auth, provider);
+      await signInWithPopup(auth, googleProvider);
       navigate("/");
     } catch (error) {
       console.error(error);
@@ -53,6 +51,8 @@ function Login() {
     }
   };
 
+  console.log(auth);
+  console.log(googleProvider);
 
   const loginTwitter = async () => {
     try {
