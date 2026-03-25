@@ -1,5 +1,9 @@
+import { useAuth } from "../context/AuthContext";
+
 function Home() {
-  return (
+    const { user } = useAuth();
+    console.log(user);
+    return (
     <div style={{ textAlign: "center", marginTop: "3rem" }}>
       <h1>Metal Verify</h1>
 
