@@ -2,6 +2,7 @@ import React,{ useState } from 'react'
 import { calculateCoinDensity,calculateBarDensity } from './DensityCalculations.js'
 import {uploadCoinProfiles} from "../../firebase/firestoreUpload.js"
 import "./DensityTest.css"
+import { saveDensityTest } from '../Account/DatabaseCode.js';
 
 const COIN_SPECS = {
     eagle: {
@@ -88,12 +89,26 @@ function DensityTest() {
     try {
       const density = calculateCoinDensity(coinData.diameter, coinData.thickness, coinData.weight);
       
-      const expectedDensity = 10.49; // g/cm³ for silver
+      const expectedDensity = selectedCoin === "unknown" ? 10.49 : getExpectedSpecs().geometricDensity;
       const deviation = Math.abs(density - expectedDensity);
       
       setCalculatedDensity(density);
       setConfidence(calculateConfidence(density));
       setBarPosition(calculateBarPosition(density));
+
+      const testData = {
+        itemType: "coin",
+        selectedCoin: selectedCoin,
+        inputs: { ...coinData },
+        results: {
+          density,
+          expectedDensity,
+          confidence: calculateConfidence(density),
+        }
+      }
+      
+      saveDensityTest(testData);
+
     } catch (err) {
       alert(err.message);
     }
