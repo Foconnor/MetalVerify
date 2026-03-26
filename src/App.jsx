@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useAuth } from "./context/AuthContext";
 import './App.css'
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
@@ -19,6 +20,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 
 
 function App() {
+    const { user, isAdmin } = useAuth();
 
   return (
     <Router>
@@ -43,6 +45,10 @@ function App() {
               <Link to="/">Home</Link>
               <Link to="/ping">Ping Test</Link>
               <Link to="/density">Density Test</Link>
+
+                {user && <Link to="/history">History</Link>}
+
+                {isAdmin && <Link to="/admin">Admin Dashboard</Link>}
             </nav>
           </div>
           
