@@ -1,5 +1,6 @@
 import React,{ useState } from 'react'
 import { calculateCoinDensity,calculateBarDensity } from './DensityCalculations.js'
+import {uploadCoinProfiles} from "../../firebase/firestoreUpload.js"
 import "./DensityTest.css"
 
 const COIN_SPECS = {
@@ -44,6 +45,10 @@ function DensityTest() {
 
   const handleCoinChange = (e) => {
     setCoinData({ ...coinData, [e.target.name]: e.target.value });
+  };
+
+  const handleUpload = async () => {
+    await uploadCoinProfiles();
   };
 
   const handleBarChange = (e) => {
@@ -334,6 +339,12 @@ function DensityTest() {
           </p>
         </div>
       )}
+
+
+      {/* // Coin Profiles Upload Button - Uncomment to use
+      <hr />
+      <button onClick={handleUpload} className="form-button">Upload Coin Profiles to Firestore</button>
+      */}
     </div>
 
   )
