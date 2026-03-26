@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { auth } from "../../firebase/firebaseConfig";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile, signInWithPopup } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { googleProvider, facebookProvider, microsoftProvider, twitterProvider } from "../../firebase/firebaseConfig.js";
-
+import { createUserIfNotExists} from "./DatabaseCode.js";
 
 function Signup() {
 
@@ -36,6 +36,8 @@ function Signup() {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       console.log("Google Login Succesful ",user);
+      createUserIfNotExists(user);
+      console.log("User data saved to Firestore");
       navigate("/");
 
     } catch (error) {
