@@ -2,6 +2,7 @@ import { useState } from "react";
 import {  auth,googleProvider, facebookProvider, microsoftProvider, twitterProvider } from "../../firebase/firebaseConfig.js";
 import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { createUserIfNotExists } from "./DatabaseCode.js";
 
 function Login() {
 
@@ -14,6 +15,8 @@ function Login() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      createUserIfNotExists(auth.currentUser);
+      console.log("User data saved to Firestore");
       navigate("/"); // redirect to home
     } catch (error) {
       console.error("Login error:", error);
@@ -24,6 +27,8 @@ function Login() {
   const loginGoogle = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
+      createUserIfNotExists(auth.currentUser);
+      console.log("User data saved to Firestore");
       navigate("/");
     } catch (error) {
       console.error(error);
