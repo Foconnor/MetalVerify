@@ -1,5 +1,5 @@
 import { useState } from "react";
-import InfoStage from "./Stages/infoStage.jsx";
+import InfoStage from "./Stages/InfoStage.jsx";
 import TestStage from "../magnet/Stages/TestStage.jsx";
 import ResultStage from "../magnet/Stages/ResultStage.jsx";
 
