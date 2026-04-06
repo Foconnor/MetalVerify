@@ -29,20 +29,15 @@ function Home() {
 
     const fetchNews = async () => {
         try {
+
             const res = await fetch(
-                "https://newsapi.org/v2/everything?q=precious%20metals&language=en&sortBy=publishedAt&apiKey=cc55313b786e452db12b2e8f3223d229"
+                "https://api.marketaux.com/v1/news/all?search=silver&language=en&limit=5&api_token=WbU2yjMCNpn5P7YKzEpADvlV14vCbqlaHU8zz04B"
             );
-//api key belongs to cal currently, should change key later for company account
+
             const data = await res.json();
 
-            if (data && data.articles) {
-
-                const silverNews = data.articles.filter(article =>
-                    article.title.toLowerCase().includes("silver")
-                );
-
-                setNews(silverNews.slice(0, 5));
-
+            if (data && data.data) {
+                setNews(data.data);
             } else {
                 console.error("Invalid news response", data);
             }
@@ -82,7 +77,7 @@ function Home() {
                 ) : (
                     news.map((article, index) => (
                         <div key={index} style={{ marginBottom: "10px" }}>
-                            <a href={article.link} target="_blank" rel="noopener noreferrer">
+                            <a href={article.url} target="_blank" rel="noopener noreferrer">
                                 {article.title}
                             </a>
                         </div>
