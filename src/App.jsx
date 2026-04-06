@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from './pages/Home.jsx';
 import PingPage from './pages/PingPage.jsx';
 import DensityPage from './pages/DensityPage.jsx';
+import MagnetPage from './pages/MagnetPage.jsx';
 
 import Accounts from './features/Account/Accounts.jsx';
 import Login from './features/Account/Login.jsx';
@@ -45,6 +46,7 @@ function App() {
               <Link to="/">Home</Link>
               <Link to="/ping">Ping Test</Link>
               <Link to="/density">Density Test</Link>
+              <Link to="/magnet">Magnet Test</Link>
 
                 {user && <Link to="/history">History</Link>}
 
@@ -66,6 +68,7 @@ function App() {
                 {/* Testing Pages */}
                 <Route path="/ping" element={<PingPage />} />
                 <Route path="/density" element={<DensityPage />} />
+                <Route path="/magnet" element={<MagnetPage />} />
 
                 {/* Account Pages */}
                 <Route path="/login" element={<Login />} />
