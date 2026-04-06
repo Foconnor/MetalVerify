@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc, serverTimestamp, addDoc, collection } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp, addDoc, collection, deleteDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig.js";
 import { getAuth } from "firebase/auth";
 
@@ -32,4 +32,14 @@ export const saveDensityTest = async (testData) => {
     ...testData,
     createdAt: serverTimestamp(),
   });
+};
+
+export const deleteTest = async (testId) => {
+  const user = getAuth().currentUser;
+
+  if (!user) throw new Error("User not logged in");
+
+  const testRef = doc(db, "users", user.uid, "tests", testId);
+
+  await deleteDoc(testRef);
 };
