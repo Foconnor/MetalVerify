@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc, serverTimestamp, addDoc, collection, deleteDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, getDocs, serverTimestamp, addDoc, collection, deleteDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig.js";
 import { getAuth } from "firebase/auth";
 
@@ -42,4 +42,21 @@ export const deleteTest = async (testId) => {
   const testRef = doc(db, "users", user.uid, "tests", testId);
 
   await deleteDoc(testRef);
+};
+
+export const fetchCoinProfiles = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "coinProfiles"));
+
+    const coinData = {};
+
+    querySnapshot.forEach((doc) => {
+      coinData[doc.id] = doc.data();
+    });
+
+    return coinData;
+  } catch (error) {
+    console.error("Error fetching coin profiles:", error);
+    throw error;
+  }
 };
