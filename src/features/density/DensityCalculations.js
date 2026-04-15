@@ -5,7 +5,10 @@ export function calculateCoinDensity(diameter, thickness, weight) {
 
   if (isNaN(d) || isNaN(t) || isNaN(w)) throw new Error("Invalid input for coin");
 
-  const volume = Math.PI * ((d / 2) ** 2) * t; // Cylinder volume: πr²h
+  const radiusCm = (d / 2) / 10;
+  const heightCm = t / 10;
+
+  const volume = Math.PI * (radiusCm ** 2) * heightCm; // Cylinder volume: πr²h
   const density = w / volume;
   return density.toFixed(2);
 }
