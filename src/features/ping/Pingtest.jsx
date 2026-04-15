@@ -4,6 +4,8 @@ import { getMicStream, analyzePing } from "./pingUtils";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig";
 import { useEffect } from "react";
+import { saveScan } from "../../firebase/saveScan";
+import { useAuth } from "../../context/AuthContext";
 
 
 
@@ -20,7 +22,7 @@ export default function PingTest() {
   const [selectedBarId, setSelectedBarId] = useState(null);
   const selectedBar = bars.find(b => b.id === selectedBarId);
   const [selectedType, setSelectedType] = useState("coin");
-
+  const { user } = useAuth();
   const selectedProfile =
       selectedType === "coin" ? selectedCoin : selectedBar;
 
@@ -143,16 +145,12 @@ export default function PingTest() {
   }
 
 
-  function finalize({ freq, duration, harmonics }) {
-    // const profile = COIN_PROFILES[selectedCoin];
-
+  async function finalize({ freq, duration, harmonics }) {
     if (!selectedProfile) return;
 
     const ideal = selectedProfile.idealFreq;
     const maxDeviation = selectedProfile.tolerance;
     const maxDur = selectedProfile.minDuration;
-    const isBar = selectedType === "bar";
-
 
     const deviation = Math.abs(freq - ideal);
 
@@ -161,9 +159,8 @@ export default function PingTest() {
             ? 40 * (1 - deviation / maxDeviation)
             : 0;
 
-    const durScore = isBar
-        ? Math.min(duration / maxDur, 1) * 20
-        : Math.min(duration / maxDur, 1) * 35;
+    const durScore =
+        Math.min(duration / maxDur, 1) * 35;
 
     const stabilityScore =
         duration > 1 ? 25 :
@@ -177,24 +174,31 @@ export default function PingTest() {
                 harmonics === 1 ? 10 :
                     0;
 
-
     const confidence = Math.round(
         (freqScore + durScore + stabilityScore + harmonicScore) / 1.25
     );
 
-
     let verdict;
 
-    if (confidence >= 90)
-      verdict = "Highly Likely Genuine";
-    else if (confidence >= 70)
-      verdict = "Likely Genuine";
-    else if (confidence >= 50)
-      verdict = "Uncertain";
-    else if (confidence >= 30)
-      verdict = "Likely Fake";
-    else
-      verdict = "Very Likely Fake";
+    if (confidence >= 90) verdict = "Highly Likely Genuine";
+    else if (confidence >= 70) verdict = "Likely Genuine";
+    else if (confidence >= 50) verdict = "Uncertain";
+    else if (confidence >= 30) verdict = "Likely Fake";
+    else verdict = "Very Likely Fake";
+
+    // ✅ SAVE TO FIRESTORE
+    if (user) {
+      await saveScan({
+        userId: user.uid,
+        testType: "ping",
+        metalType: selectedType,
+        profileName: selectedProfile.name,
+        result: verdict,
+        frequency: freq,
+        duration,
+        confidence
+      });
+    }
 
     setMetrics({
       freq: freq.toFixed(0),
