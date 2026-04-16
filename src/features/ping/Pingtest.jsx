@@ -4,6 +4,8 @@ import { getMicStream, analyzePing } from "./pingUtils";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig";
 import { useEffect } from "react";
+import { saveScan } from "../../firebase/saveScan";
+import { useAuth } from "../../context/AuthContext";
 
 
 
@@ -16,6 +18,13 @@ export default function PingTest() {
   const [coins, setCoins] = useState([]);
   const [selectedCoinId, setSelectedCoinId] = useState(null);
   const selectedCoin = coins.find(c => c.id === selectedCoinId);
+  const [bars, setBars] = useState([]);
+  const [selectedBarId, setSelectedBarId] = useState(null);
+  const selectedBar = bars.find(b => b.id === selectedBarId);
+  const [selectedType, setSelectedType] = useState("coin");
+  const { user } = useAuth();
+  const selectedProfile =
+      selectedType === "coin" ? selectedCoin : selectedBar;
 
 
 
@@ -23,7 +32,15 @@ export default function PingTest() {
   const analyserRef = useRef(null);
   const streamRef = useRef(null);
 
+  useEffect(() => {
+    if (selectedType === "coin" && coins.length > 0 && !selectedCoinId) {
+      setSelectedCoinId(coins[0].id);
+    }
 
+    if (selectedType === "bar" && bars.length > 0 && !selectedBarId) {
+      setSelectedBarId(bars[0].id);
+    }
+  }, [selectedType, coins, bars]);
 
   useEffect(() => {
     async function fetchCoins() {
@@ -49,6 +66,29 @@ export default function PingTest() {
     fetchCoins();
   }, []);
 
+  useEffect(() => {
+    async function fetchBars() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "barProfiles"));
+
+        const barList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
+        setBars(barList);
+
+        if (barList.length > 0) {
+          setSelectedBarId(barList[0].id);
+        }
+
+      } catch (error) {
+        console.error("Error fetching bars:", error);
+      }
+    }
+
+    fetchBars();
+  }, []);
 
   async function startTest() {
     reset();
@@ -105,16 +145,12 @@ export default function PingTest() {
   }
 
 
-  function finalize({ freq, duration, harmonics }) {
-    // const profile = COIN_PROFILES[selectedCoin];
+  async function finalize({ freq, duration, harmonics }) {
+    if (!selectedProfile) return;
 
-    if (!selectedCoin) return;
-
-    const ideal = selectedCoin.idealFreq;
-    const maxDeviation = selectedCoin.tolerance;
-    const maxDur = selectedCoin.minDuration;
-
-
+    const ideal = selectedProfile.idealFreq;
+    const maxDeviation = selectedProfile.tolerance;
+    const maxDur = selectedProfile.minDuration;
 
     const deviation = Math.abs(freq - ideal);
 
@@ -138,24 +174,31 @@ export default function PingTest() {
                 harmonics === 1 ? 10 :
                     0;
 
-
     const confidence = Math.round(
         (freqScore + durScore + stabilityScore + harmonicScore) / 1.25
     );
 
-
     let verdict;
 
-    if (confidence >= 90)
-      verdict = "Highly Likely Genuine";
-    else if (confidence >= 70)
-      verdict = "Likely Genuine";
-    else if (confidence >= 50)
-      verdict = "Uncertain";
-    else if (confidence >= 30)
-      verdict = "Likely Fake";
-    else
-      verdict = "Very Likely Fake";
+    if (confidence >= 90) verdict = "Highly Likely Genuine";
+    else if (confidence >= 70) verdict = "Likely Genuine";
+    else if (confidence >= 50) verdict = "Uncertain";
+    else if (confidence >= 30) verdict = "Likely Fake";
+    else verdict = "Very Likely Fake";
+
+    // ✅ SAVE TO FIRESTORE
+    if (user) {
+      await saveScan({
+        userId: user.uid,
+        testType: "ping",
+        metalType: selectedType,
+        profileName: selectedProfile.name,
+        result: verdict,
+        frequency: freq,
+        duration,
+        confidence
+      });
+    }
 
     setMetrics({
       freq: freq.toFixed(0),
@@ -252,17 +295,37 @@ export default function PingTest() {
   return (
       <div style={box}>
         <h2>Silver Ping Test</h2>
-
         <select
-            value={selectedCoinId || ""}
-            onChange={(e) => setSelectedCoinId(e.target.value)}
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
         >
-          {coins.map((coin) => (
-              <option key={coin.id} value={coin.id}>
-                {coin.name}
-              </option>
-          ))}
+          <option value="coin">Coin</option>
+          <option value="bar">Bar</option>
         </select>
+
+        {selectedType === "coin" ? (
+            <select
+                value={selectedCoinId || ""}
+                onChange={(e) => setSelectedCoinId(e.target.value)}
+            >
+              {coins.map((coin) => (
+                  <option key={coin.id} value={coin.id}>
+                    {coin.name}
+                  </option>
+              ))}
+            </select>
+        ) : (
+            <select
+                value={selectedBarId || ""}
+                onChange={(e) => setSelectedBarId(e.target.value)}
+            >
+              {bars.map((bar) => (
+                  <option key={bar.id} value={bar.id}>
+                    {bar.name}
+                  </option>
+              ))}
+            </select>
+        )}
 
 
         <button onClick={startTest}>

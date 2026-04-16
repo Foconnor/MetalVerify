@@ -1,86 +1,66 @@
 import { useEffect, useState } from "react";
-import { collection, query, orderBy, getDocs } from "firebase/firestore";
-import { deleteTest } from "../features/Account/DatabaseCode.js"; // import the delete function
-import { db } from "../firebase/firebaseConfig.js";
-import { getAuth } from "firebase/auth";
+import { db } from "../firebase/firebaseConfig";
+import { collection,  query,  where,  getDocs,  orderBy } from "firebase/firestore";
+import { useAuth } from "../context/AuthContext";
 
 function HistoryPage() {
-  const [tests, setTests] = useState([]);
+    const { user } = useAuth();
+    const [scans, setScans] = useState([]);
 
-  useEffect(() => {
-    const fetchTests = async () => {
-      const user = getAuth().currentUser;
+    useEffect(() => {
+        if (!user) return;
 
-      if (!user) {
-        console.log("No user logged in");
-        return;
-      }
+        const fetchScans = async () => {
+            try {
+                const q = query(
+                    collection(db, "userScans"),
+                    where("userId", "==", user.uid),
+                    orderBy("timestamp", "desc")
+                );
 
-      const testsRef = collection(db, "users", user.uid, "tests");
+                const snapshot = await getDocs(q);
 
-      const q = query(testsRef, orderBy("createdAt", "desc"));
+                const results = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
 
-      const querySnapshot = await getDocs(q);
+                setScans(results);
+            } catch (error) {
+                console.error("Error fetching scans:", error);
+            }
+        };
 
-      const testList = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-
-      setTests(testList);
-    };
-
-    fetchTests();
-  }, []);
-
-    const handleDelete = async (testId) => {
-        try {
-            await deleteTest(testId); // call external function
-            setTests(prev => prev.filter(test => test.id !== testId));
-        } catch (error) {
-            console.error("Error deleting test:", error);
-        }
-    };
+        fetchScans();
+    }, [user]);
 
     return (
-        <div>
-        <h2>Your Scan History</h2>
+        <div style={{ maxWidth: 600, margin: "40px auto" }}>
+            <h1>Scan History</h1>
 
-        {tests.length === 0 ? (
-            <p>No tests yet.</p>
-        ) : (
-            <table border="1" cellPadding="10" align="center">
-            <thead>
-                <tr>
-                <th>Type</th>
-                <th>Item</th>
-                <th>Density</th>
-                <th>Confidence</th>
-                <th>Date</th>
-                <th>Delete</th>
-                </tr>
-            </thead>
+            {scans.length === 0 ? (
+                <p>No scans yet.</p>
+            ) : (
+                scans.map((scan, index) => (
+                    <div
+                        key={scan.id}
+                        style={{
+                            border: "1px solid #ccc",
+                            padding: 15,
+                            marginBottom: 10,
+                            borderRadius: 8
+                        }}
+                    >
+                        <h3>Scan #{index + 1}</h3>
 
-            <tbody>
-                {tests.map((test) => (
-                <tr key={test.id}>
-                    <td>{test.type}</td>
-                    <td>{test.results?.selectedCoin || test.itemType}</td>
-                    <td>{Number(test.results?.density).toFixed(2)}</td>
-                    <td>{test.results?.confidence}%</td>
-                    <td>
-                    {test.createdAt?.toDate
-                        ? test.createdAt.toDate().toLocaleString()
-                        : "N/A"}
-                    </td>
-                    <td>
-                        <button onClick={() => handleDelete(test.id)}>Delete</button>
-                    </td>
-                </tr>
-                ))}
-            </tbody>
-            </table>
-        )}
+                        <p><strong>Test:</strong> {scan.testType}</p>
+                        <p><strong>Type:</strong> {scan.metalType}</p>
+                        <p><strong>Item:</strong> {scan.profileName}</p>
+                        <p><strong>Result:</strong> {scan.result}</p>
+                        <p><strong>Confidence:</strong> {scan.confidence}%</p>
+                    </div>
+                ))
+            )}
         </div>
     );
 }
