@@ -4,6 +4,7 @@ import './App.css'
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
 import Home from './pages/Home.jsx';
+import Dashboard from './pages/Dashboard/Dashboard.jsx';
 import PingPage from './pages/PingPage.jsx';
 import DensityPage from './pages/DensityPage.jsx';
 import MagnetPage from './pages/MagnetPage.jsx';
@@ -49,6 +50,7 @@ function App() {
               <Link to="/magnet">Magnet Test</Link>
 
                 {user && <Link to="/history">History</Link>}
+                {user && <Link to="/dashboard">Dashboard</Link>}
 
                 {isAdmin && <Link to="/admin">Admin Dashboard</Link>}
             </nav>
@@ -64,6 +66,16 @@ function App() {
 
             <Routes>
                 <Route path="/" element={<Home />} />
+
+                {/* Dashboard */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Testing Pages */}
                 <Route path="/ping" element={<PingPage />} />
