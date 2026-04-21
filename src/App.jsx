@@ -28,39 +28,6 @@ function App() {
     <Router>
       <div style={{display:'flex', flexDirection: "column"}}>
 
-        {/* SIDEBAR */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "1rem 2rem",
-            borderBottom: "1px solid gray"
-          }}
-        >
-         <div>
-          <h3>Metal Verify</h3>
-         </div>
-          
-          <div>
-            <nav style={{ display: "flex", gap: "2rem" }}>
-              <Link to="/">Home</Link>
-              <Link to="/ping">Ping Test</Link>
-              <Link to="/density">Density Test</Link>
-              <Link to="/magnet">Magnet Test</Link>
-
-                {user && <Link to="/history">History</Link>}
-                {user && <Link to="/dashboard">Dashboard</Link>}
-
-                {isAdmin && <Link to="/admin">Admin Dashboard</Link>}
-            </nav>
-          </div>
-          
-          <div>
-            <Accounts />
-          </div>
-        </div>
-
         {/* MAIN CONTENT */}
         <div style={{ flex: 1, padding: "2rem" }}>
 
@@ -71,9 +38,7 @@ function App() {
                 <Route
                   path="/dashboard"
                   element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
+                    <Dashboard />
                   }
                 />
 
