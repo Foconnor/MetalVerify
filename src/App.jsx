@@ -32,7 +32,7 @@ function App() {
         <div style={{ flex: 1, padding: "2rem" }}>
 
             <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<Dashboard />} />
 
                 {/* Dashboard */}
                 <Route
