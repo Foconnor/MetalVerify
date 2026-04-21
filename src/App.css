@@ -50,3 +50,15 @@ body{
 .read-the-docs {
   color: #888;
 }
+
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+    background-color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
