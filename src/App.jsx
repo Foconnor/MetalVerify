@@ -4,6 +4,7 @@ import './App.css'
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
 import Home from './pages/Home.jsx';
+import Dashboard from './pages/Dashboard/Dashboard.jsx';
 import PingPage from './pages/PingPage.jsx';
 import DensityPage from './pages/DensityPage.jsx';
 import MagnetPage from './pages/MagnetPage.jsx';
@@ -27,43 +28,19 @@ function App() {
     <Router>
       <div style={{display:'flex', flexDirection: "column"}}>
 
-        {/* SIDEBAR */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "1rem 2rem",
-            borderBottom: "1px solid gray"
-          }}
-        >
-         <div>
-          <h3>Metal Verify</h3>
-         </div>
-          
-          <div>
-            <nav style={{ display: "flex", gap: "2rem" }}>
-              <Link to="/">Home</Link>
-              <Link to="/ping">Ping Test</Link>
-              <Link to="/density">Density Test</Link>
-              <Link to="/magnet">Magnet Test</Link>
-
-                {user && <Link to="/history">History</Link>}
-
-                {isAdmin && <Link to="/admin">Admin Dashboard</Link>}
-            </nav>
-          </div>
-          
-          <div>
-            <Accounts />
-          </div>
-        </div>
-
         {/* MAIN CONTENT */}
         <div style={{ flex: 1, padding: "2rem" }}>
 
             <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<Dashboard />} />
+
+                {/* Dashboard */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <Dashboard />
+                  }
+                />
 
                 {/* Testing Pages */}
                 <Route path="/ping" element={<PingPage />} />
