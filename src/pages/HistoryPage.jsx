@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase/firebaseConfig";
-import { collection,  query,  where,  getDocs,  orderBy } from "firebase/firestore";
+import {
+    collection,
+    getDocs,
+    orderBy,
+    query
+} from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 
 function HistoryPage() {
@@ -13,9 +18,8 @@ function HistoryPage() {
         const fetchScans = async () => {
             try {
                 const q = query(
-                    collection(db, "userScans"),
-                    where("userId", "==", user.uid),
-                    orderBy("timestamp", "desc")
+                    collection(db, "users", user.uid, "tests"),
+                    orderBy("createdAt", "desc")
                 );
 
                 const snapshot = await getDocs(q);
@@ -53,11 +57,26 @@ function HistoryPage() {
                     >
                         <h3>Scan #{index + 1}</h3>
 
-                        <p><strong>Test:</strong> {scan.testType}</p>
-                        <p><strong>Type:</strong> {scan.metalType}</p>
-                        <p><strong>Item:</strong> {scan.profileName}</p>
-                        <p><strong>Result:</strong> {scan.result}</p>
-                        <p><strong>Confidence:</strong> {scan.confidence}%</p>
+                        <p><strong>Type:</strong> {scan.type}</p>
+
+                        {scan.type === "ping" && (
+                            <>
+                                <p><strong>Item:</strong> {scan.profileName}</p>
+                                <p><strong>Frequency:</strong> {scan.metrics?.frequency} Hz</p>
+                                <p><strong>Duration:</strong> {scan.metrics?.duration}s</p>
+                                <p><strong>Confidence:</strong> {scan.results?.confidence}%</p>
+                                <p><strong>Result:</strong> {scan.results?.verdict}</p>
+                            </>
+                        )}
+
+                        {scan.type === "density" && (
+                            <>
+                                <p><strong>Item Type:</strong> {scan.itemType}</p>
+                                <p><strong>Density:</strong> {scan.results?.density}</p>
+                                <p><strong>Expected:</strong> {scan.results?.expectedDensity}</p>
+                                <p><strong>Confidence:</strong> {scan.results?.confidence}%</p>
+                            </>
+                        )}
                     </div>
                 ))
             )}
