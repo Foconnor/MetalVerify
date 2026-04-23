@@ -6,11 +6,15 @@ import { db } from "../../firebase/firebaseConfig";
 import { useEffect } from "react";
 import { saveScan } from "../../firebase/saveScan";
 import { useAuth } from "../../context/AuthContext";
+import {savePingTest} from "../Account/DatabaseCode.js";
 
 
 
 
 export default function PingTest() {
+  const generateThreeTestId = () => { return "3test_" + Date.now(); };
+  const [label, setLabel] = useState("");
+  const [threeTestId, setThreeTestId] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [status, setStatus] = useState("idle");
   const [result, setResult] = useState(null);
@@ -196,7 +200,29 @@ export default function PingTest() {
         result: verdict,
         frequency: freq,
         duration,
-        confidence
+        confidence,
+        label,
+        threeTestId
+      });
+
+      await savePingTest({
+        itemType: selectedType,
+        profileName: selectedProfile.name,
+
+        metrics: {
+          frequency: freq,
+          duration,
+          harmonics
+        },
+
+        results: {
+          confidence,
+          verdict
+        },
+
+        // NEW
+        label,
+        threeTestId
       });
     }
 
