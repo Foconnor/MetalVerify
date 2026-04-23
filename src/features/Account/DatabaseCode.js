@@ -18,19 +18,40 @@ export const createUserIfNotExists = async (user) => {
   }
 };
 
+export const savePingTest = async (testData) => {
+  const user = getAuth().currentUser;
+
+  if (!user) return;
+
+  const testsRef = collection(db, "users", user.uid, "tests");
+
+  await addDoc(testsRef, {
+    type: "ping",
+    ...testData,
+
+    // NEW FIELDS
+    threeTestId: testData.threeTestId || null,
+    label: testData.label || null,
+
+    createdAt: serverTimestamp(),
+  });
+};
+
 export const saveDensityTest = async (testData) => {
   const user = getAuth().currentUser;
 
-  if (!user) {
-    console.error("No user logged in");
-    return;
-  }
+  if (!user) return;
 
   const testsRef = collection(db, "users", user.uid, "tests");
 
   await addDoc(testsRef, {
     type: "density",
     ...testData,
+
+    // NEW FIELDS
+    threeTestId: testData.threeTestId || null,
+    label: testData.label || null,
+
     createdAt: serverTimestamp(),
   });
 };
