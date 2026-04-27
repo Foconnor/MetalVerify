@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getRecentDensityTests } from "../../features/Account/DatabaseCode.js"; 
 import { useAuth } from "../../context/AuthContext.jsx";
 import Accounts from "../../features/Account/Accounts.jsx";
+import PageLayout from "../../components/layout/PageLayout.jsx";
 
 function Dashboard({ onNavigate }) {
   const [recentTests, setRecentTests] = useState([]);
@@ -21,8 +22,6 @@ function Dashboard({ onNavigate }) {
     if (user) {
       fetchData();
     }
-    fetchSilverPrice();
-    fetchNews();
   }, []);
 
   const fetchData = async () => {
@@ -37,71 +36,9 @@ function Dashboard({ onNavigate }) {
       }
   };
 
-const fetchSilverPrice = async () => {
-        try {
-            const res = await fetch("https://api.gold-api.com/price/XAG");
-            const data = await res.json();
-
-            setSilverPrice(data.price);
-            setLoadingPrice(false);
-        } catch (error) {
-            console.error("Silver price error:", error);
-            setLoadingPrice(false);
-        }
-    };
-
-    const fetchNews = async () => {
-        try {
-
-            const res = await fetch(
-                "https://api.marketaux.com/v1/news/all?search=silver&language=en&limit=5&api_token=WbU2yjMCNpn5P7YKzEpADvlV14vCbqlaHU8zz04B"
-            );
-
-            const data = await res.json();
-
-            if (data && data.data) {
-                setNews(data.data);
-            } else {
-                console.error("Invalid news response", data);
-            }
-
-            setLoadingNews(false);
-
-        } catch (error) {
-            console.error("News fetch error:", error);
-            setLoadingNews(false);
-        }
-    };
   
   return (
-    <div style={styles.pageWrapper}>
-
-     {/* ✅ ACCOUNT (FLOATING TOP RIGHT)
-    <div style={styles.accountFloating}>
-      <Accounts />
-    </div> */}
-
-      {/* LEFT - NEWS */}
-    <div style={styles.newsContainer}>
-      <Accounts />
-      <h2>News</h2>
-
-      {loadingNews ? (
-        <p>Loading...</p>
-      ) : (
-        news.map((article, index) => (
-          <div key={index} style={styles.newsCard}>
-            <a href={article.url} target="_blank" rel="noopener noreferrer">
-              <h4>{article.title}</h4>
-            </a>
-            <p style={styles.newsSource}>{article.source}</p>
-          </div>
-        ))
-      )}
-    </div>
-
-      {/* MIDDLE - MAIN DASHBOARD */}
-    <div style={styles.mainContainer}>
+    <PageLayout>
       <h1 style={styles.title}>Metal Verify</h1>
 
       {/* TEST BUTTONS */}
@@ -151,25 +88,7 @@ const fetchSilverPrice = async () => {
             </button>
           </div>
         )}
-      
-    </div>
-
-    {/* RIGHT - SPONSORS */}
-    <div style={styles.sponsorContainer}>
-      <h2>Sponsored</h2>
-
-      <div style={styles.sponsorCard}>
-        <p>Trusted Silver Dealer</p>
-        <button style={styles.sponsorButton}>View Offers</button>
-      </div>
-
-      <div style={styles.sponsorCard}>
-        <p>Buy Verified Coins</p>
-        <button style={styles.sponsorButton}>Shop Now</button>
-      </div>
-    </div>
-
-  </div>
+      </PageLayout>
   );
 }
 
