@@ -15,6 +15,7 @@ import Signup from './features/Account/Signup.jsx'
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
+import { ThreeTestProvider } from "./context/ThreeTestContext";
 
 // temp pages (create if not yet)
 import HistoryPage from "./pages/HistoryPage";
