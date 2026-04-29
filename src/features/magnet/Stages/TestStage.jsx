@@ -1,9 +1,11 @@
+import MagnetTestSetup from "../Animation/MagnetTestSetup";
+
 function TestStage() {
   return (
     <div>
       <h2>Perform the Test</h2>
 
-      {/* Placeholder for video */}
+      {/* Placeholder for video
       <div style={{
         background: "#ddd",
         marginBottom: "20px"
@@ -16,7 +18,10 @@ function TestStage() {
     frameBorder="0"
     allowFullScreen
   ></iframe>
-      </div>
+      </div> */}
+
+      <MagnetTestSetup />
+
 
       <ol style={{ textAlign: "left" }}>
         <li>Hold the silver at an angle</li>
