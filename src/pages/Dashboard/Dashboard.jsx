@@ -4,17 +4,25 @@ import { getRecentDensityTests } from "../../features/Account/DatabaseCode.js";
 import { useAuth } from "../../context/AuthContext.jsx";
 import Accounts from "../../features/Account/Accounts.jsx";
 import PageLayout from "../../components/layout/PageLayout.jsx";
+import { useThreeTest } from "../../context/ThreeTestContext";
 
 function Dashboard({ onNavigate }) {
   const [recentTests, setRecentTests] = useState([]);
   const navigate = useNavigate();
 
   const { user } = useAuth();
-  
-  const [silverPrice, setSilverPrice] = useState(null);
+  const {
+    threeTestMode,
+    testsRemaining,
+    startThreeTest
+  } = useThreeTest();
+ const [silverPrice, setSilverPrice] = useState(null);
   const [news, setNews] = useState([]);
   const [loadingPrice, setLoadingPrice] = useState(true);
   const [loadingNews, setLoadingNews] = useState(true);
+  const generateThreeTestId = () => {
+    return "3test_" + Date.now();
+  };
 
   useEffect(() => {
     
@@ -36,10 +44,18 @@ function Dashboard({ onNavigate }) {
       }
   };
 
-  
+
   return (
     <PageLayout>
       <h1 style={styles.title}>Metal Verify</h1>
+
+      <button onClick={startThreeTest} disabled={threeTestMode}>
+        Start 3-Test Mode
+      </button>
+
+      {threeTestMode && (
+          <p>3-Test Active ({testsRemaining} remaining)</p>
+      )}
 
       {/* TEST BUTTONS */}
       <div style={styles.buttonContainer}>
