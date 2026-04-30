@@ -61,6 +61,7 @@ function Home() {
             <div style={{ marginTop: "2rem" }}>
                 <h2>Live Silver Price</h2>
 
+
                 {loadingPrice ? (
                     <p>Loading silver price...</p>
                 ) : (
