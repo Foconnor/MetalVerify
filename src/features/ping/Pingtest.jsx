@@ -7,12 +7,13 @@ import { useEffect } from "react";
 import { saveScan } from "../../firebase/saveScan";
 import { useAuth } from "../../context/AuthContext";
 import {savePingTest} from "../Account/DatabaseCode.js";
+import { useThreeTest } from "../../context/ThreeTestContext";
 
 
 
 
 export default function PingTest() {
-  const generateThreeTestId = () => { return "3test_" + Date.now(); };
+  const { registerTest } = useThreeTest();
   const [label, setLabel] = useState("");
   const [threeTestId, setThreeTestId] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -155,6 +156,7 @@ export default function PingTest() {
     const ideal = selectedProfile.idealFreq;
     const maxDeviation = selectedProfile.tolerance;
     const maxDur = selectedProfile.minDuration;
+    const activeThreeTestId = registerTest();
 
     const deviation = Math.abs(freq - ideal);
 
@@ -190,7 +192,7 @@ export default function PingTest() {
     else if (confidence >= 30) verdict = "Likely Fake";
     else verdict = "Very Likely Fake";
 
-    // ✅ SAVE TO FIRESTORE
+
     if (user) {
       await saveScan({
         userId: user.uid,
@@ -222,7 +224,7 @@ export default function PingTest() {
 
         // NEW
         label,
-        threeTestId
+        threeTestId: activeThreeTestId
       });
     }
 
