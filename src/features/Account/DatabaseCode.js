@@ -83,6 +83,23 @@ export const fetchCoinProfiles = async () => {
   }
 };
 
+export const fetchBarProfiles = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "barProfiles"));
+
+    const barData = {};
+
+    querySnapshot.forEach((doc) => {
+      barData[doc.id] = doc.data();
+    });
+
+    return barData;
+  } catch (error) {
+    console.error("Error fetching bar profiles:", error);
+    throw error;
+  }
+};
+
 export const getRecentDensityTests = async () => {
   const user = getAuth().currentUser;
 
