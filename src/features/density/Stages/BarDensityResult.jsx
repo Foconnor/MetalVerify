@@ -34,11 +34,28 @@ function BarDensityResult({ data, onReset}) {
   const handleUpload = () => {
     // Saving to database
     if (user) {
+        const testData = {
+            itemType: "bar",
+            profileName: data.selectedBarData ? data.selectedBarData.name : "Unknown Profile",
+            
+            metrics: { 
+                length: parseInt(data.input.length), 
+                width: parseInt(data.input.width), 
+                height: parseInt(data.input.height), 
+                weight: parseFloat(data.input.weight),
+                density: parseFloat(data.results.density)
+            },
+            
+            results: {
+                confidence: parseInt(data.results.confidence),
+                verdict: getResultVerdict(data.results.confidence)
+            }
+        };
+            
+            
+
         saveDensityTest({
-            density: data.results.density,
-            confidence: data.results.confidence,
-            threeTestId: data.threeTestId,
-            label: data.label
+            ...testData,
         });
         console.log("Density test saved successfully. Data:", {
             density: data.results.density,
