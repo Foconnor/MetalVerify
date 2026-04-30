@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
+import { saveDensityTest } from '../../Account/DatabaseCode.js';
+import { saveScan } from '../../../firebase/saveScan.js';
+import { getAuth } from "firebase/auth";
 
-function BarDensityResult({ data, onReset }) {
+function BarDensityResult({ data, onReset}) {
   const [barPosition, setBarPosition] = useState(50);
+  const user = getAuth().currentUser;
 
   console.log("BarDensityResult received data:", data);
 
@@ -14,6 +18,46 @@ function BarDensityResult({ data, onReset }) {
     const position = 50 + (deviation / MAX_RANGE) * 50;
 
     return Math.min(100, Math.max(0, position));
+  };
+
+  const getResultVerdict = (confidence) => {
+    let verdict = "";
+    if (confidence >= 90) verdict = "Highly Likely Genuine";
+    else if (confidence >= 70) verdict = "Likely Genuine";
+    else if (confidence >= 50) verdict = "Uncertain";
+    else if (confidence >= 30) verdict = "Likely Fake";
+    else verdict = "Very Likely Fake";
+
+    return verdict;
+  }
+
+  const handleUpload = () => {
+    // Saving to database
+    if (user) {
+        saveDensityTest({
+            density: data.results.density,
+            confidence: data.results.confidence,
+            threeTestId: data.threeTestId,
+            label: data.label
+        });
+        console.log("Density test saved successfully. Data:", {
+            density: data.results.density,
+            confidence: data.results.confidence,
+            threeTestId: data.threeTestId,
+            label: data.label
+        });
+
+        saveScan({
+          userId: user.uid,
+          testType: "density",
+          metalType: data.itemType,
+          profileName: data.selectedBarData ? data.selectedBarData.name : "Unknown Profile",
+          result: getResultVerdict(data.results.confidence),
+          frequency: data.frequency || null,
+          duration: data.duration || null,
+          confidence: data.results.confidence || null,
+        });
+    }
   };
 
   useEffect(() => {
@@ -84,7 +128,9 @@ function BarDensityResult({ data, onReset }) {
       )}
 
       <button onClick={onReset}>Test Again</button>
-      
+      <button onClick={handleUpload} style={{ marginLeft: "1rem" }}>
+        Save Result
+      </button>
     </div>
   );
 }

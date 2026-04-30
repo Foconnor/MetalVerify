@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
+import { saveDensityTest } from '../../Account/DatabaseCode.js';
+import { saveScan } from '../../../firebase/saveScan.js';
+import { getAuth } from "firebase/auth";
 
 function CoinDensityResult({ data, onReset }) {
   const [barPosition, setBarPosition] = useState(50);
+  const user = getAuth().currentUser;
 
   const calculateBarPosition = (density) => {
     const EXPECTED = data.selectedCoinData !== null ? data.selectedCoinData.expectedDensity : 10.49;
@@ -15,6 +19,48 @@ function CoinDensityResult({ data, onReset }) {
     console.log("Calculated Position:", position);
     return Math.min(100, Math.max(0, position));
   };
+
+  const getResultVerdict = (confidence) => {
+    let verdict = "";
+    if (confidence >= 90) verdict = "Highly Likely Genuine";
+    else if (confidence >= 70) verdict = "Likely Genuine";
+    else if (confidence >= 50) verdict = "Uncertain";
+    else if (confidence >= 30) verdict = "Likely Fake";
+    else verdict = "Very Likely Fake";
+
+    return verdict;
+  }
+
+  const handleUpload = () => {
+    // Saving to database
+    if (user) {
+        saveDensityTest({
+            density: data.results.density,
+            confidence: data.results.confidence,
+            threeTestId: data.threeTestId,
+            label: data.label
+        });
+        console.log("Density test saved successfully. Data:", {
+            density: data.results.density,
+            confidence: data.results.confidence,
+            threeTestId: data.threeTestId,
+            label: data.label
+        });
+
+        saveScan({
+          userId: user.uid,
+          testType: "density",
+          metalType: data.itemType,
+          profileName: data.selectedProfile ? data.selectedProfile.name : "Unknown Profile",
+          result: getResultVerdict(data.results.confidence),
+          frequency: data.frequency || null,
+          duration: data.duration || null,
+          confidence: data.results.confidence || null,
+        });
+        console.log("Scan saved successfully.");
+    }
+  };
+
 
   useEffect(() => {
     if (data.results.density !== null) {
@@ -80,6 +126,7 @@ function CoinDensityResult({ data, onReset }) {
 
 
       <button onClick={onReset}>Test Again</button>
+      <button onClick={handleUpload} style={{ marginLeft: "1rem" }}>Save Result</button>
     </div>
   );
 }
