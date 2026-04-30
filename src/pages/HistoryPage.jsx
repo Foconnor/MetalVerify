@@ -7,10 +7,13 @@ import {
     query
 } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
+import { updateTestLabel } from "../features/Account/DatabaseCode";
 
 function HistoryPage() {
     const { user } = useAuth();
     const [scans, setScans] = useState([]);
+    const [editingId, setEditingId] = useState(null);
+    const [newLabel, setNewLabel] = useState("");
 
     useEffect(() => {
         if (!user) return;
@@ -56,6 +59,52 @@ function HistoryPage() {
                         }}
                     >
                         <h3>Scan #{index + 1}</h3>
+                        {editingId === scan.id ? (
+                            <>
+                                <input
+                                    value={newLabel}
+                                    onChange={(e) => setNewLabel(e.target.value)}
+                                    placeholder="Enter label"
+                                />
+
+                                <button
+                                    onClick={async () => {
+                                        await updateTestLabel(scan.id, newLabel);
+
+                                        // update UI instantly
+                                        setScans(prev =>
+                                            prev.map(s =>
+                                                s.id === scan.id ? { ...s, label: newLabel } : s
+                                            )
+                                        );
+
+                                        setEditingId(null);
+                                        setNewLabel("");
+                                    }}
+                                >
+                                    Save
+                                </button>
+
+                                <button onClick={() => setEditingId(null)}>
+                                    Cancel
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <p>
+                                    <strong>Label:</strong> {scan.label || "None"}
+                                </p>
+
+                                <button
+                                    onClick={() => {
+                                        setEditingId(scan.id);
+                                        setNewLabel(scan.label || "");
+                                    }}
+                                >
+                                    {scan.label ? "Edit Label" : "Add Label"}
+                                </button>
+                            </>
+                        )}
 
                         <p><strong>Type:</strong> {scan.type}</p>
 

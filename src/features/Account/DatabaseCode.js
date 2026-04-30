@@ -1,4 +1,4 @@
-import { doc, setDoc, getDoc, getDocs, serverTimestamp, addDoc, collection, deleteDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc, getDocs, serverTimestamp, addDoc, collection, deleteDoc } from "firebase/firestore";
 import { query, orderBy, limit } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig.js";
 import { getAuth } from "firebase/auth";
@@ -100,4 +100,16 @@ export const getRecentDensityTests = async () => {
     id: doc.id,
     ...doc.data()
   }));
+};
+
+export const updateTestLabel = async (testId, newLabel) => {
+  const user = getAuth().currentUser;
+
+  if (!user) throw new Error("User not logged in");
+
+  const testRef = doc(db, "users", user.uid, "tests", testId);
+
+  await updateDoc(testRef, {
+    label: newLabel
+  });
 };
