@@ -1,38 +1,15 @@
 import { useState } from 'react'
 import "./DensityTest.css"
+import { saveDensityTest } from '../Account/DatabaseCode.js';
+import { saveScan } from '../../firebase/saveScan.js';
 
-// const COIN_SPECS = {
-//     eagle: {
-//       name: "American Silver Eagle",
-//       diameter: 4.06,
-//       thickness: 0.298,
-//       weight: 31.103,
-//       geometricDensity: 8.06,
-//     },
-//     maple:{
-//       name: "Canadian Silver Maple Leaf",
-//       diameter: 3.8,
-//       thickness: 0.329,
-//       weight: 31.103,
-//       geometricDensity: 8.34
-//     },
-//     britannia:{
-//       name: "British Silver Britannia",
-//       diameter: 3.861,
-//       thickness: 0.3,
-//       weight: 31.103,
-//       geometricDensity: 8.86
-//     },
-//     panda: {
-//       name: "Chinese Silver Panda",
-//       diameter: 4.0,
-//       thickness: 0.27,
-//       weight: 30,
-//       geometricDensity: 8.84
-//     }
-//   }
+//coin imports
 import CoinDensityTest from './Stages/CoinDensitytest.jsx';
 import CoinDensityResult from './Stages/CoinDensityResult.jsx';
+
+//bar imports
+import BarDensityTest from './Stages/BarDensityTest.jsx';
+import BarDensityResult from './Stages/BarDensityResult.jsx';
 
 function DensityTest() {
   const [label, setLabel] = useState("");
@@ -69,13 +46,31 @@ function DensityTest() {
         label,
         threeTestId
       }
-      
-      saveDensityTest(testData);
+
+      if (user) {
+        saveDensityTest(testData);
+        console.log("Density test saved successfully");
+        saveScan({
+          userId: user.uid,
+          testType: "density",
+          metalType: type,
+          profileName: selectedProfile.name,
+          result: verdict,
+          frequency: freq,
+          duration,
+          confidence,
+          label,
+          threeTestId
+        });
+      }
 
     } catch (err) {
       alert(err.message);
     }
   };
+
+
+
   const reset = () => {
     setType("");
     setStage("input");
@@ -84,6 +79,12 @@ function DensityTest() {
 
   const coinRepeat = () => {
     setType("coin");
+    setStage("input");
+    setResultData(null);
+  }
+
+  const barRepeat = () => {
+    setType("bar");
     setStage("input");
     setResultData(null);
   }
@@ -105,6 +106,15 @@ function DensityTest() {
 
       {type === "coin" && stage === "result" && resultData && (
         <CoinDensityResult data={resultData} onReset={coinRepeat} />
+      )}
+
+      {/* BAR FLOW */}
+      {type === "bar" && stage === "input" && (
+        <BarDensityTest onCalculate={handleResult} onHome={reset} />
+      )}
+
+      {type === "bar" && stage === "result" && resultData && (
+        <BarDensityResult data={resultData} onReset={barRepeat} />
       )}
     </div>
 

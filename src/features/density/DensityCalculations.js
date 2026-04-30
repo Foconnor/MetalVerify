@@ -21,7 +21,7 @@ export function calculateBarDensity(length, height, width, weight) {
 
   if (isNaN(l) || isNaN(h) || isNaN(w) || isNaN(weightNum)) throw new Error("Invalid input for bar");
 
-  const volume = l * h * w; // Rectangular prism volume
+  const volume = (l * h * w)/ 1000; // Rectangular prism volume
   const density = weightNum / volume;
   return density.toFixed(2);
 }
