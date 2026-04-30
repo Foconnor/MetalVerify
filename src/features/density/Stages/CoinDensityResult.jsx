@@ -33,13 +33,31 @@ function CoinDensityResult({ data, onReset }) {
 
   const handleUpload = () => {
     // Saving to database
+
     if (user) {
+      const testData = {
+            itemType: "coin",
+            profileName: data.selectedCoinData ? data.selectedCoinData.name : "Unknown Profile",
+            
+            metrics: { 
+              diameter: parseFloat(data.input.diameter),
+              thickness: parseFloat(data.input.thickness),
+              weight: parseFloat(data.input.weight),
+              density: parseFloat(data.results.density)
+            },
+            
+            results: {
+              confidence: parseInt(data.results.confidence),
+              verdict: getResultVerdict(data.results.confidence)
+            }
+        };
+
+        console.log("Prepared test data for upload:", testData);
+        
         saveDensityTest({
-            density: data.results.density,
-            confidence: data.results.confidence,
-            threeTestId: data.threeTestId,
-            label: data.label
+            ...testData,
         });
+        
         console.log("Density test saved successfully. Data:", {
             density: data.results.density,
             confidence: data.results.confidence,
@@ -51,7 +69,7 @@ function CoinDensityResult({ data, onReset }) {
           userId: user.uid,
           testType: "density",
           metalType: data.itemType,
-          profileName: data.selectedProfile ? data.selectedProfile.name : "Unknown Profile",
+          profileName: data.selectedCoinData ? data.selectedCoinData.name : "Unknown Profile",
           result: getResultVerdict(data.results.confidence),
           frequency: data.frequency || null,
           duration: data.duration || null,
