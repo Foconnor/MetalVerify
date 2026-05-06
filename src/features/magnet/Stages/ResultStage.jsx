@@ -1,8 +1,15 @@
 import { useState } from "react";
 import MagnetTestResult from "../Animation/MagnetTestResult";
+import { saveMagnetTest } from '../../Account/DatabaseCode.js';
+import { getAuth } from "firebase/auth";
 
 function ResultStage() {
   const [result, setResult] = useState("");
+
+  const handleUpload = () => {
+    // Saving to database
+    saveMagnetTest({ result });
+  };
 
   return (
     <div>
@@ -23,7 +30,7 @@ function ResultStage() {
       )}
 
       <button style={{ marginTop: "20px" }}>
-        Save Result (coming soon)
+        Save Result
       </button>
     </div>
   );

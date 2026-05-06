@@ -56,6 +56,25 @@ export const saveDensityTest = async (testData) => {
   });
 };
 
+export const saveMagnetTest = async (testData) => {
+  const user = getAuth().currentUser;
+
+  if (!user) return;
+
+  const testsRef = collection(db, "users", user.uid, "tests");
+
+  await addDoc(testsRef, {
+    type: "magnet",
+    ...testData,
+
+    // NEW FIELDS
+    threeTestId: testData.threeTestId || null,
+    label: testData.label || null,
+
+    createdAt: serverTimestamp(),
+  });
+};
+
 export const deleteTest = async (testId) => {
   const user = getAuth().currentUser;
 
@@ -79,6 +98,23 @@ export const fetchCoinProfiles = async () => {
     return coinData;
   } catch (error) {
     console.error("Error fetching coin profiles:", error);
+    throw error;
+  }
+};
+
+export const fetchBarProfiles = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "barProfiles"));
+
+    const barData = {};
+
+    querySnapshot.forEach((doc) => {
+      barData[doc.id] = doc.data();
+    });
+
+    return barData;
+  } catch (error) {
+    console.error("Error fetching bar profiles:", error);
     throw error;
   }
 };

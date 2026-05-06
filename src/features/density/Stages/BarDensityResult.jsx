@@ -3,20 +3,20 @@ import { saveDensityTest } from '../../Account/DatabaseCode.js';
 import { saveScan } from '../../../firebase/saveScan.js';
 import { getAuth } from "firebase/auth";
 
-function CoinDensityResult({ data, onReset }) {
+function BarDensityResult({ data, onReset}) {
   const [barPosition, setBarPosition] = useState(50);
   const user = getAuth().currentUser;
 
-  const calculateBarPosition = (density) => {
-    const EXPECTED = data.selectedCoinData !== null ? data.selectedCoinData.expectedDensity : 10.49;
-    console.log("Expected Density:", EXPECTED);
-    const MAX_RANGE = 2;
+  console.log("BarDensityResult received data:", data);
 
-    console.log("Input Density:", density);
+  const calculateBarPosition = (density) => {
+    const EXPECTED =
+      data.selectedBarData !== null ? data.selectedBarData.expectedDensity : 10.49;
+
+    const MAX_RANGE = 2;
     const deviation = parseFloat(density) - EXPECTED;
-    console.log("Deviation:", deviation);
     const position = 50 + (deviation / MAX_RANGE) * 50;
-    console.log("Calculated Position:", position);
+
     return Math.min(100, Math.max(0, position));
   };
 
@@ -33,31 +33,30 @@ function CoinDensityResult({ data, onReset }) {
 
   const handleUpload = () => {
     // Saving to database
-
     if (user) {
-      const testData = {
-            itemType: "coin",
-            profileName: data.selectedCoinData ? data.selectedCoinData.name : "Unknown Profile",
+        const testData = {
+            itemType: "bar",
+            profileName: data.selectedBarData ? data.selectedBarData.name : "Unknown Profile",
             
             metrics: { 
-              diameter: parseFloat(data.input.diameter),
-              thickness: parseFloat(data.input.thickness),
-              weight: parseFloat(data.input.weight),
-              density: parseFloat(data.results.density)
+                length: parseInt(data.input.length), 
+                width: parseInt(data.input.width), 
+                height: parseInt(data.input.height), 
+                weight: parseFloat(data.input.weight),
+                density: parseFloat(data.results.density)
             },
             
             results: {
-              confidence: parseInt(data.results.confidence),
-              verdict: getResultVerdict(data.results.confidence)
+                confidence: parseInt(data.results.confidence),
+                verdict: getResultVerdict(data.results.confidence)
             }
         };
+            
+            
 
-        console.log("Prepared test data for upload:", testData);
-        
         saveDensityTest({
             ...testData,
         });
-        
         console.log("Density test saved successfully. Data:", {
             density: data.results.density,
             confidence: data.results.confidence,
@@ -69,42 +68,43 @@ function CoinDensityResult({ data, onReset }) {
           userId: user.uid,
           testType: "density",
           metalType: data.itemType,
-          profileName: data.selectedCoinData ? data.selectedCoinData.name : "Unknown Profile",
+          profileName: data.selectedBarData ? data.selectedBarData.name : "Unknown Profile",
           result: getResultVerdict(data.results.confidence),
           frequency: data.frequency || null,
           duration: data.duration || null,
           confidence: data.results.confidence || null,
         });
-        console.log("Scan saved successfully.");
     }
   };
-
 
   useEffect(() => {
     if (data.results.density !== null) {
       const position = calculateBarPosition(data.results.density);
       setBarPosition(position);
-      console.log("Calculated Bar Position:", position);
     }
   }, [data.results.density]);
 
-
   return (
     <div>
-      <h2>Coin Results</h2>
-
-      {console.log("Result Data:", data)}
+      <h2>Bar Results</h2>
 
       {data.results.confidence !== null && (
-        <div style={{ marginTop: "1rem", width: "260px", margin: "0 auto", textAlign: "center" }}>
-          
+        <div
+          style={{
+            marginTop: "1rem",
+            width: "260px",
+            margin: "0 auto",
+            textAlign: "center"
+          }}
+        >
           {/* Gradient bar */}
           <div
             style={{
               position: "relative",
               height: "14px",
               borderRadius: "8px",
-              background: "linear-gradient(to right, red, yellow, green, yellow, red)",
+              background:
+                "linear-gradient(to right, red, yellow, green, yellow, red)"
             }}
           >
             {/* Marker */}
@@ -118,7 +118,6 @@ function CoinDensityResult({ data, onReset }) {
                 backgroundColor: "#0c0a0a"
               }}
             />
-            {console.log("Bar Position:", barPosition)}
           </div>
 
           {/* Labels */}
@@ -133,20 +132,24 @@ function CoinDensityResult({ data, onReset }) {
           >
             <span>LOW</span>
             <span>PERFECT</span>
-            <span>High</span>
+            <span>HIGH</span>
           </div>
 
           <p style={{ marginTop: "0.5rem" }}>
-            Confidence: <strong style={{ fontSize: "2.8rem" }}>{data.results.confidence}%</strong>
+            Confidence:{" "}
+            <strong style={{ fontSize: "2.8rem" }}>
+              {data.results.confidence}%
+            </strong>
           </p>
         </div>
       )}
 
-
       <button onClick={onReset}>Test Again</button>
-      <button onClick={handleUpload} style={{ marginLeft: "1rem" }}>Save Result</button>
+      <button onClick={handleUpload} style={{ marginLeft: "1rem" }}>
+        Save Result
+      </button>
     </div>
   );
 }
 
-export default CoinDensityResult;
+export default BarDensityResult;
