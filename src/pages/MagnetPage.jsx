@@ -12,11 +12,14 @@ function MagnetPage() {
       {/* TEST BUTTONS */}
       <div style={styles.buttonContainer}>
         <button style={styles.button} onClick={() => navigate("/")}>
-          Back
+          Back to home
         </button>
 
-        <button style={styles.button} onClick={() => navigate("/ping")}>
-          Next Test
+        <button style={styles.button} onClick={() => navigate("/Ping")}>
+          Ping Test
+        </button>
+        <button style={styles.button} onClick={() => navigate("/Desnity")}>
+          Densityesp Test
         </button>
       </div>
 

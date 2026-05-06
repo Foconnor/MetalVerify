@@ -12,11 +12,14 @@ function DensityPage() {
       {/* TEST BUTTONS */}
       <div style={styles.buttonContainer}>
         <button style={styles.button} onClick={() => navigate("/")}>
-          Back
+          Back to home
         </button>
 
+        <button style={styles.button} onClick={() => navigate("/ping")}>
+          Ping Test
+        </button>
         <button style={styles.button} onClick={() => navigate("/magnet")}>
-          Next Test
+          Magnet Test
         </button>
       </div>
 
