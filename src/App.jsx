@@ -20,6 +20,7 @@ import { ThreeTestProvider } from "./context/ThreeTestContext";
 // temp pages (create if not yet)
 import HistoryPage from "./pages/HistoryPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import StartScan from "./pages/StartScan";
 
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
                 />
 
                 {/* Testing Pages */}
+                <Route path="/start-scan" element={<StartScan />} />
                 <Route path="/ping" element={<PingPage />} />
                 <Route path="/density" element={<DensityPage />} />
                 <Route path="/magnet" element={<MagnetPage />} />

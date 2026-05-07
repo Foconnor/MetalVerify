@@ -6,6 +6,7 @@ import Accounts from "../../features/Account/Accounts.jsx";
 import PageLayout from "../../components/layout/PageLayout.jsx";
 import { useThreeTest } from "../../context/ThreeTestContext";
 
+
 function Dashboard({ onNavigate }) {
   const [recentTests, setRecentTests] = useState([]);
   const navigate = useNavigate();
@@ -49,28 +50,31 @@ function Dashboard({ onNavigate }) {
     <PageLayout>
       <h1 style={styles.title}>Metal Verify</h1>
 
-      <button onClick={startThreeTest} disabled={threeTestMode}>
-        Start 3-Test Mode
-      </button>
+      {/*<button onClick={startThreeTest} disabled={threeTestMode}>*/}
+      {/*  Start 3-Test Mode*/}
+      {/*</button>*/}
 
-      {threeTestMode && (
-          <p>3-Test Active ({testsRemaining} remaining)</p>
-      )}
+      {/*{threeTestMode && (*/}
+      {/*    <p>3-Test Active ({testsRemaining} remaining)</p>*/}
+      {/*)}*/}
 
       {/* TEST BUTTONS */}
-      <div style={styles.buttonContainer}>
-        <button style={styles.button} onClick={() => navigate("/ping")}>
-          Ping Test
-        </button>
+      {/*<div style={styles.buttonContainer}>*/}
+      {/*  <button style={styles.button} onClick={() => navigate("/ping")}>*/}
+      {/*    Ping Test*/}
+      {/*  </button>*/}
 
-        <button style={styles.button} onClick={() => navigate("/density")}>
-          Density Test
-        </button>
+      {/*  <button style={styles.button} onClick={() => navigate("/density")}>*/}
+      {/*    Density Test*/}
+      {/*  </button>*/}
 
-        <button style={styles.button} onClick={() => navigate("/magnet")}>
-          Magnet Test
-        </button>
-      </div>
+      {/*  <button style={styles.button} onClick={() => navigate("/magnet")}>*/}
+      {/*    Magnet Test*/}
+      {/*  </button>*/}
+      {/*</div>*/}
+      <button style={styles.button} onClick={() => navigate("/start-scan")}>
+        Start Scan
+      </button>
 
       {/* RECENT SCANS */}
         {user ? (
