@@ -19,7 +19,7 @@ function MagnetPage() {
           Ping Test
         </button>
         <button style={styles.button} onClick={() => navigate("/Desnity")}>
-          Densityesp Test
+          Density Test
         </button>
       </div>
 
