@@ -1,124 +1,119 @@
-import { useState } from 'react'
-import "./DensityTest.css"
-import { saveDensityTest } from '../Account/DatabaseCode.js';
-import { saveScan } from '../../firebase/saveScan.js';
+import { useState } from "react";
+import "./DensityTest.css";
 
-//coin imports
-import CoinDensityTest from './Stages/CoinDensitytest.jsx';
-import CoinDensityResult from './Stages/CoinDensityResult.jsx';
+import { useAuth } from "../../context/AuthContext";
+import { useThreeTest } from "../../context/ThreeTestContext";
+import { useTestStore } from "../../context/TestStoreContext";
 
-//bar imports
-import BarDensityTest from './Stages/BarDensityTest.jsx';
-import BarDensityResult from './Stages/BarDensityResult.jsx';
+import { saveDensityTest } from "../Account/DatabaseCode.js";
+import { saveScan } from "../../firebase/saveScan.js";
+
+// coin imports
+import CoinDensityTest from "./Stages/CoinDensitytest.jsx";
+import CoinDensityResult from "./Stages/CoinDensityResult.jsx";
+
+// bar imports
+import BarDensityTest from "./Stages/BarDensityTest.jsx";
+import BarDensityResult from "./Stages/BarDensityResult.jsx";
 
 function DensityTest() {
+  const { user } = useAuth();
+  const { registerTest } = useThreeTest();
+  const { selectedItem } = useTestStore();
+
   const [label, setLabel] = useState("");
-  const [threeTestId, setThreeTestId] = useState(null);
-  const [type, setType] = useState(""); // Coin or Bar
-  const [stage, setStage] = useState("input"); // select, input, result
-  const [resultData, setResultData] = useState(null); // Store calculated density and confidence
-  
-  const handleResult = (data) => {
+  const [stage, setStage] = useState("input");
+  const [resultData, setResultData] = useState(null);
+
+  const selectedType = selectedItem?.type;
+  const selectedProfile = selectedItem;
+
+  const handleResult = async (data) => {
     setResultData(data);
     setStage("result");
-  };
 
-  const handleCoinCalculate = () => {
-    try {
-      const density = calculateCoinDensity(coinData.diameter, coinData.thickness, coinData.weight);
-      
-      const expectedDensity = selectedCoin === "unknown" ? 10.49 : getExpectedSpecs().geometricDensity;
-      const deviation = Math.abs(density - expectedDensity);
-      
-      setCalculatedDensity(density);
-      setConfidence(calculateConfidence(density));
-      setBarPosition(calculateBarPosition(density));
+    const assignedThreeTestId = registerTest();
 
-      const testData = {
-        itemType: "coin",
-        selectedCoin: selectedCoin,
-        inputs: { ...coinData },
-        results: {
-          density,
-          expectedDensity,
-          confidence: calculateConfidence(density),
-        },
+    const testData = {
+      itemType: selectedType,
+      profileName: selectedProfile?.name,
+
+      inputs: data.inputs,
+
+      results: {
+        density: data.density,
+        expectedDensity: data.expectedDensity,
+        confidence: data.confidence,
+        verdict: data.verdict
+      },
+
+      label,
+      threeTestId: assignedThreeTestId
+    };
+
+    if (user) {
+      await saveDensityTest(testData);
+
+      await saveScan({
+        userId: user.uid,
+        testType: "density",
+        metalType: selectedType,
+        profileName: selectedProfile?.name,
+        result: data.verdict,
+        confidence: data.confidence,
         label,
-        threeTestId
-      }
-
-      if (user) {
-        saveDensityTest(testData);
-        console.log("Density test saved successfully");
-        saveScan({
-          userId: user.uid,
-          testType: "density",
-          metalType: type,
-          profileName: selectedProfile.name,
-          result: verdict,
-          frequency: freq,
-          duration,
-          confidence,
-          label,
-          threeTestId
-        });
-      }
-
-    } catch (err) {
-      alert(err.message);
+        threeTestId: assignedThreeTestId
+      });
     }
   };
 
-
-
   const reset = () => {
-    setType("");
     setStage("input");
     setResultData(null);
-  }
+  };
 
-  const coinRepeat = () => {
-    setType("coin");
-    setStage("input");
-    setResultData(null);
-  }
-
-  const barRepeat = () => {
-    setType("bar");
-    setStage("input");
-    setResultData(null);
+  if (!selectedProfile) {
+    return <p>No coin or bar selected.</p>;
   }
 
   return (
-    <div>
-      {type === "" && stage === "input" && (
-        <div className="selection-container">
-          <h2>Select Test Type</h2>
-          <button onClick={() => setType("coin")}>COIN</button>
-          <button onClick={() => setType("bar")}>BAR</button>
-        </div>
-      )}
+      <div>
 
-      {/* COIN FLOW */}
-      {type === "coin" && stage === "input" && (
-        <CoinDensityTest onCalculate={handleResult} onHome={reset} />
-      )}
+        <p>
+          Selected: <strong>{selectedProfile.name}</strong>
+        </p>
 
-      {type === "coin" && stage === "result" && resultData && (
-        <CoinDensityResult data={resultData} onReset={coinRepeat} />
-      )}
+        {selectedType === "coin" && stage === "input" && (
+            <CoinDensityTest
+                selectedProfile={selectedProfile}
+                onCalculate={handleResult}
+                onHome={reset}
+            />
+        )}
 
-      {/* BAR FLOW */}
-      {type === "bar" && stage === "input" && (
-        <BarDensityTest onCalculate={handleResult} onHome={reset} />
-      )}
+        {selectedType === "coin" && stage === "result" && resultData && (
+            <CoinDensityResult
+                data={resultData}
+                onReset={reset}
+            />
+        )}
 
-      {type === "bar" && stage === "result" && resultData && (
-        <BarDensityResult data={resultData} onReset={barRepeat} />
-      )}
-    </div>
+        {selectedType === "bar" && stage === "input" && (
+            <BarDensityTest
+                selectedProfile={selectedProfile}
+                onCalculate={handleResult}
+                onHome={reset}
+            />
+        )}
 
-  )
+        {selectedType === "bar" && stage === "result" && resultData && (
+            <BarDensityResult
+                data={resultData}
+                onReset={reset}
+            />
+        )}
+      </div>
+  );
 }
 
 export default DensityTest;
