@@ -59,18 +59,16 @@ export const saveDensityTest = async (testData) => {
 export const saveMagnetTest = async (testData) => {
   const user = getAuth().currentUser;
 
-  if (!user) return;
+  if (!user) {
+    console.error("No user logged in");
+    return;
+  }
 
   const testsRef = collection(db, "users", user.uid, "tests");
 
   await addDoc(testsRef, {
     type: "magnet",
     ...testData,
-
-    // NEW FIELDS
-    threeTestId: testData.threeTestId || null,
-    label: testData.label || null,
-
     createdAt: serverTimestamp(),
   });
 };
