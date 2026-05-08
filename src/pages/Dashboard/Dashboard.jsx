@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext.jsx";
 import Accounts from "../../features/Account/Accounts.jsx";
 import PageLayout from "../../components/layout/PageLayout.jsx";
 import { useThreeTest } from "../../context/ThreeTestContext";
+import AppHeader from "../../components/layout/AppHeader.jsx";
 
 function Dashboard({ onNavigate }) {
   const [recentTests, setRecentTests] = useState([]);
@@ -47,7 +48,7 @@ function Dashboard({ onNavigate }) {
 
   return (
     <PageLayout>
-      <h1 style={styles.title}>Metal Verify</h1>
+      <AppHeader />
 
       <button onClick={startThreeTest} disabled={threeTestMode}>
         Start 3-Test Mode
