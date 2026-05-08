@@ -9,8 +9,10 @@ import { saveScan } from "../../firebase/saveScan";
 import { useThreeTest } from "../../context/ThreeTestContext";
 import { useTestStore } from "../../context/TestStoreContext";
 import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function MagnetTest() {
+    const navigate = useNavigate();
     const { selectedItem } = useTestStore();
     const { registerTest } = useThreeTest();
     const { user } = useAuth();
@@ -36,7 +38,10 @@ function MagnetTest() {
             confidence = 20;
         }
 
-        const activeThreeTestId = registerTest();
+        const result = registerTest();
+
+        const activeThreeTestId = result?.threeTestId;
+        const completed = result?.completed;
 
         const testData = {
             itemType: selectedItem?.type || "coin",
@@ -70,6 +75,9 @@ function MagnetTest() {
         }
 
         setResult(verdict);
+        if (completed && activeThreeTestId) {
+            navigate(`/three-test-result/${activeThreeTestId}`);
+        }
     };
 
     return (

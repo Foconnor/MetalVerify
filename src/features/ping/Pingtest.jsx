@@ -10,6 +10,7 @@ import {savePingTest} from "../Account/DatabaseCode.js";
 import { useThreeTest } from "../../context/ThreeTestContext";
 import { useTestSession } from "../../context/TestSessionContext";
 import { useTestStore } from "../../context/TestStoreContext";
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -26,7 +27,7 @@ export default function PingTest() {
   const [metrics, setMetrics] = useState(null);
   const { user } = useAuth();
   const { selectedItem } = useTestStore();
-
+  const navigate = useNavigate();
   const selectedProfile = selectedItem;
   const selectedType = selectedItem?.type;
 
@@ -159,7 +160,10 @@ export default function PingTest() {
     const ideal = selectedProfile.idealFreq;
     const maxDeviation = selectedProfile.tolerance;
     const maxDur = selectedProfile.minDuration;
-    const activeThreeTestId = registerTest();
+    const result = registerTest();
+
+    const activeThreeTestId = result?.threeTestId;
+    const completed = result?.completed;
 
     const deviation = Math.abs(freq - ideal);
 
@@ -240,6 +244,9 @@ export default function PingTest() {
     setResult(verdict);
     setStatus("done");
     cleanup();
+    if (completed && activeThreeTestId) {
+      navigate(`/three-test-result/${activeThreeTestId}`);
+    }
   }
 
   function cleanup() {
