@@ -8,6 +8,10 @@ import { saveScan } from "../../firebase/saveScan";
 import { useAuth } from "../../context/AuthContext";
 import {savePingTest} from "../Account/DatabaseCode.js";
 import { useThreeTest } from "../../context/ThreeTestContext";
+import { useTestSession } from "../../context/TestSessionContext";
+import { useTestStore } from "../../context/TestStoreContext";
+
+
 
 
 
@@ -20,80 +24,74 @@ export default function PingTest() {
   const [status, setStatus] = useState("idle");
   const [result, setResult] = useState(null);
   const [metrics, setMetrics] = useState(null);
-  const [coins, setCoins] = useState([]);
-  const [selectedCoinId, setSelectedCoinId] = useState(null);
-  const selectedCoin = coins.find(c => c.id === selectedCoinId);
-  const [bars, setBars] = useState([]);
-  const [selectedBarId, setSelectedBarId] = useState(null);
-  const selectedBar = bars.find(b => b.id === selectedBarId);
-  const [selectedType, setSelectedType] = useState("coin");
   const { user } = useAuth();
-  const selectedProfile =
-      selectedType === "coin" ? selectedCoin : selectedBar;
+  const { selectedItem } = useTestStore();
 
+  const selectedProfile = selectedItem;
+  const selectedType = selectedItem?.type;
 
 
   const audioCtxRef = useRef(null);
   const analyserRef = useRef(null);
   const streamRef = useRef(null);
 
-  useEffect(() => {
-    if (selectedType === "coin" && coins.length > 0 && !selectedCoinId) {
-      setSelectedCoinId(coins[0].id);
-    }
+  // useEffect(() => {
+  //   if (selectedType === "coin" && coins.length > 0 && !selectedCoinId) {
+  //     setSelectedCoinId(coins[0].id);
+  //   }
+  //
+  //   if (selectedType === "bar" && bars.length > 0 && !selectedBarId) {
+  //     setSelectedBarId(bars[0].id);
+  //   }
+  // }, [selectedType, coins, bars]);
 
-    if (selectedType === "bar" && bars.length > 0 && !selectedBarId) {
-      setSelectedBarId(bars[0].id);
-    }
-  }, [selectedType, coins, bars]);
-
-  useEffect(() => {
-    async function fetchCoins() {
-      try {
-        const querySnapshot = await getDocs(collection(db, "coinProfiles"));
-
-        const coinList = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-
-        setCoins(coinList);
-
-        if (coinList.length > 0) {
-          setSelectedCoinId(coinList[0].id);
-        }
-
-      } catch (error) {
-        console.error("Error fetching coins:", error);
-      }
-    }
-
-    fetchCoins();
-  }, []);
-
-  useEffect(() => {
-    async function fetchBars() {
-      try {
-        const querySnapshot = await getDocs(collection(db, "barProfiles"));
-
-        const barList = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-
-        setBars(barList);
-
-        if (barList.length > 0) {
-          setSelectedBarId(barList[0].id);
-        }
-
-      } catch (error) {
-        console.error("Error fetching bars:", error);
-      }
-    }
-
-    fetchBars();
-  }, []);
+  // useEffect(() => {
+  //   async function fetchCoins() {
+  //     try {
+  //       const querySnapshot = await getDocs(collection(db, "coinProfiles"));
+  //
+  //       const coinList = querySnapshot.docs.map(doc => ({
+  //         id: doc.id,
+  //         ...doc.data()
+  //       }));
+  //
+  //       setCoins(coinList);
+  //
+  //       if (coinList.length > 0) {
+  //         setSelectedCoinId(coinList[0].id);
+  //       }
+  //
+  //     } catch (error) {
+  //       console.error("Error fetching coins:", error);
+  //     }
+  //   }
+  //
+  //   fetchCoins();
+  // }, []);
+  //
+  // useEffect(() => {
+  //   async function fetchBars() {
+  //     try {
+  //       const querySnapshot = await getDocs(collection(db, "barProfiles"));
+  //
+  //       const barList = querySnapshot.docs.map(doc => ({
+  //         id: doc.id,
+  //         ...doc.data()
+  //       }));
+  //
+  //       setBars(barList);
+  //
+  //       if (barList.length > 0) {
+  //         setSelectedBarId(barList[0].id);
+  //       }
+  //
+  //     } catch (error) {
+  //       console.error("Error fetching bars:", error);
+  //     }
+  //   }
+  //
+  //   fetchBars();
+  // }, []);
 
   async function startTest() {
     reset();
@@ -151,6 +149,11 @@ export default function PingTest() {
 
 
   async function finalize({ freq, duration, harmonics }) {
+    console.log("selectedProfile:", selectedProfile);
+    if (!selectedProfile) {
+      setErrorMessage("No coin or bar selected.");
+      return;
+    }
     if (!selectedProfile) return;
 
     const ideal = selectedProfile.idealFreq;
@@ -323,38 +326,40 @@ export default function PingTest() {
   return (
       <div style={box}>
         <h2>Silver Ping Test</h2>
-        <select
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
-        >
-          <option value="coin">Coin</option>
-          <option value="bar">Bar</option>
-        </select>
+        {/*<select*/}
+        {/*    value={selectedType}*/}
+        {/*    onChange={(e) => setSelectedType(e.target.value)}*/}
+        {/*>*/}
+        {/*  <option value="coin">Coin</option>*/}
+        {/*  <option value="bar">Bar</option>*/}
+        {/*</select>*/}
 
-        {selectedType === "coin" ? (
-            <select
-                value={selectedCoinId || ""}
-                onChange={(e) => setSelectedCoinId(e.target.value)}
-            >
-              {coins.map((coin) => (
-                  <option key={coin.id} value={coin.id}>
-                    {coin.name}
-                  </option>
-              ))}
-            </select>
-        ) : (
-            <select
-                value={selectedBarId || ""}
-                onChange={(e) => setSelectedBarId(e.target.value)}
-            >
-              {bars.map((bar) => (
-                  <option key={bar.id} value={bar.id}>
-                    {bar.name}
-                  </option>
-              ))}
-            </select>
-        )}
-
+        {/*{selectedType === "coin" ? (*/}
+        {/*    <select*/}
+        {/*        value={selectedCoinId || ""}*/}
+        {/*        onChange={(e) => setSelectedCoinId(e.target.value)}*/}
+        {/*    >*/}
+        {/*      {coins.map((coin) => (*/}
+        {/*          <option key={coin.id} value={coin.id}>*/}
+        {/*            {coin.name}*/}
+        {/*          </option>*/}
+        {/*      ))}*/}
+        {/*    </select>*/}
+        {/*) : (*/}
+        {/*    <select*/}
+        {/*        value={selectedBarId || ""}*/}
+        {/*        onChange={(e) => setSelectedBarId(e.target.value)}*/}
+        {/*    >*/}
+        {/*      {bars.map((bar) => (*/}
+        {/*          <option key={bar.id} value={bar.id}>*/}
+        {/*            {bar.name}*/}
+        {/*          </option>*/}
+        {/*      ))}*/}
+        {/*    </select>*/}
+        {/*)}*/}
+        <p>
+          Selected: {selectedProfile?.name || "None"}
+        </p>
 
         <button onClick={startTest}>
           Start Test
