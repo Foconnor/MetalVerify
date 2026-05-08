@@ -4,7 +4,7 @@ import "./DensityTest.css";
 import { useAuth } from "../../context/AuthContext";
 import { useThreeTest } from "../../context/ThreeTestContext";
 import { useTestStore } from "../../context/TestStoreContext";
-
+import { useNavigate } from "react-router-dom";
 import { saveDensityTest } from "../Account/DatabaseCode.js";
 import { saveScan } from "../../firebase/saveScan.js";
 
@@ -25,6 +25,7 @@ function DensityTest() {
   const [stage, setStage] = useState("input");
   const [resultData, setResultData] = useState(null);
 
+  const navigate = useNavigate();
   const selectedType = selectedItem?.type;
   const selectedProfile = selectedItem;
 
@@ -32,7 +33,10 @@ function DensityTest() {
     setResultData(data);
     setStage("result");
 
-    const assignedThreeTestId = registerTest();
+    const testSession = registerTest();
+
+    const assignedThreeTestId = testSession?.threeTestId;
+    const completed = testSession?.completed;
 
     const testData = {
       itemType: selectedType,
@@ -65,6 +69,9 @@ function DensityTest() {
         threeTestId: assignedThreeTestId
       });
     }
+    if (completed && assignedThreeTestId) {
+      navigate(`/three-test-result/${assignedThreeTestId}`);
+    }
   };
 
   const reset = () => {
@@ -75,6 +82,7 @@ function DensityTest() {
   if (!selectedProfile) {
     return <p>No coin or bar selected.</p>;
   }
+
 
   return (
       <div>
