@@ -8,6 +8,7 @@ import {
 } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 import { updateTestLabel } from "../features/Account/DatabaseCode";
+import AppHeader from "../components/layout/AppHeader.jsx";
 
 function HistoryPage() {
     const { user } = useAuth();
@@ -43,6 +44,7 @@ function HistoryPage() {
 
     return (
         <div style={{ maxWidth: 600, margin: "40px auto" }}>
+            <AppHeader />
             <h1>Scan History</h1>
 
             {scans.length === 0 ? (

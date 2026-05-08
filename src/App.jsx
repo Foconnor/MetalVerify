@@ -11,7 +11,8 @@ import MagnetPage from './pages/MagnetPage.jsx';
 
 import Accounts from './features/Account/Accounts.jsx';
 import Login from './features/Account/Login.jsx';
-import Signup from './features/Account/Signup.jsx'
+import Signup from './features/Account/Signup.jsx';
+import AdminArticlesPage from './pages/AdminArticlesPage.jsx';
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
@@ -20,7 +21,7 @@ import { ThreeTestProvider } from "./context/ThreeTestContext";
 // temp pages (create if not yet)
 import HistoryPage from "./pages/HistoryPage";
 import AdminDashboard from "./pages/AdminDashboard";
-import StartScan from "./pages/StartScan";
+import StartScanPage from './pages/StartScanPage.jsx';
 
 
 function App() {
@@ -45,7 +46,7 @@ function App() {
                 />
 
                 {/* Testing Pages */}
-                <Route path="/start-scan" element={<StartScan />} />
+                <Route path="/start-scan" element={<StartScanPage />} />
                 <Route path="/ping" element={<PingPage />} />
                 <Route path="/density" element={<DensityPage />} />
                 <Route path="/magnet" element={<MagnetPage />} />
@@ -53,6 +54,10 @@ function App() {
                 {/* Account Pages */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route
+                  path="/admin-articles"
+                  element={<AdminArticlesPage />}
+                />
 
                 {/* 🔐 Protected Route (logged-in users only) */}
                 <Route

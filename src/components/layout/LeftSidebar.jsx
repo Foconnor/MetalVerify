@@ -1,31 +1,24 @@
 import { useEffect, useState } from "react";
 import Accounts from "../../features/Account/Accounts.jsx";
 import allAboutSilverLogo from "../../assets/all-about-silver-logo.webp";
+import { getArticles } from "../../firebase/articleServices.js";
 
 function LeftSidebar() {
-  const [news, setNews] = useState([]);
-  const [loadingNews, setLoadingNews] = useState(true);
+  const [articles, setArticles] = useState([]);
+  const [loadingArticles, setLoadingArticles] = useState(true);
 
   useEffect(() => {
-    fetchNews();
+    fetchArticles();
   }, []);
 
-  const fetchNews = async () => {
+  const fetchArticles = async () => {
     try {
-      const res = await fetch(
-        "https://api.marketaux.com/v1/news/all?search=silver&language=en&limit=5&api_token=WbU2yjMCNpn5P7YKzEpADvlV14vCbqlaHU8zz04B"
-      );
-
-      const data = await res.json();
-
-      if (data && data.data) {
-        setNews(data.data);
-      }
-
-      setLoadingNews(false);
+      const data = await getArticles();
+      setArticles(data);
     } catch (error) {
-      console.error("News fetch error:", error);
-      setLoadingNews(false);
+      console.error("Error fetching articles:", error);
+    } finally {
+      setLoadingArticles(false);
     }
   };
 
@@ -49,17 +42,25 @@ function LeftSidebar() {
         <span style={styles.logoText}>All About Silver</span>
       </a>
 
-      <h2>News</h2>
+      <h2>Updates</h2>
 
-      {loadingNews ? (
+      {loadingArticles ? (
         <p>Loading...</p>
       ) : (
-        news.map((article, index) => (
-          <div key={index} style={styles.newsCard}>
-            <a href={article.url} target="_blank" rel="noopener noreferrer">
+        articles.map((article) => (
+          <div key={article.id} style={styles.newsCard}>
+            <a
+              href={article.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={styles.articleTitle}
+            >
               <h4>{article.title}</h4>
             </a>
-            <p style={styles.newsSource}>{article.source}</p>
+
+            <p style={styles.description}>
+              {article.description}
+            </p>
           </div>
         ))
       )}
@@ -78,13 +79,23 @@ const styles = {
     padding: "15px",
     borderRadius: "10px",
   },
+
   newsCard: {
-    marginBottom: "10px",
+    marginBottom: "15px",
+    backgroundColor: "white",
+    padding: "10px",
+    borderRadius: "10px",
+    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
   },
-  
-  newsSource: {
-    fontSize: "12px",
-    color: "gray",
+
+  articleTitle: {
+    textDecoration: "none",
+    color: "black",
+  },
+
+  description: {
+    fontSize: "14px",
+    color: "#555",
   },
 
   logoLink: {

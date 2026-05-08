@@ -1,13 +1,21 @@
-import metalVerifyLogo from "../../assets/metal-verify-logo.jpg";
+import metalVerifyLogo from "../../assets/MetalVerify-logo.png";
+import { useNavigate } from "react-router-dom";
 
 function AppHeader() {
+  const navigate = useNavigate();
+
   return (
     <div style={styles.container}>
-      <img
-        src={metalVerifyLogo}
-        alt="Metal Verify"
-        style={styles.logo}
-      />
+      <button
+        onClick={() => navigate("/")}
+        style={styles.button}
+      >
+        <img
+          src={metalVerifyLogo}
+          alt="Metal Verify"
+          style={styles.logo}
+        />
+      </button>
     </div>
   );
 }
@@ -22,9 +30,16 @@ const styles = {
   },
 
   logo: {
-    width: "300px",
-    maxWidth: "90%",
+    width: "450px",
+    maxWidth: "95%",
     height: "auto",
     objectFit: "contain",
+  },
+
+  button: {
+    background: "none",
+    border: "none",
+    padding: "0",
+    cursor: "pointer",
   },
 };
