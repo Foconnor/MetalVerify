@@ -32,7 +32,10 @@ export function ThreeTestProvider({ children }) {
             setTestsRemaining(0);
         }
 
-        return currentId;
+        return {
+            threeTestId: currentId,
+            completed: remaining <= 0
+        };
     };
 
     return (
