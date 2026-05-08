@@ -8,12 +8,39 @@ import {
 } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 import { updateTestLabel } from "../features/Account/DatabaseCode";
+import PageLayout from '../components/layout/PageLayout.jsx';
+import { useNavigate } from "react-router-dom";
 
 function HistoryPage() {
     const { user } = useAuth();
     const [scans, setScans] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [newLabel, setNewLabel] = useState("");
+    const navigate = useNavigate();
+    const styles = {
+        title: {
+            textAlign: "center",
+            marginBottom: "30px",
+        },
+
+        buttonContainer: {
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "40px",
+            gap: "10px",
+        },
+
+        button: {
+            flex: 1,
+            padding: "15px",
+            fontSize: "16px",
+            borderRadius: "10px",
+            border: "none",
+            cursor: "pointer",
+            backgroundColor: "#1e1e1e",
+            color: "white",
+        },
+    };
 
     useEffect(() => {
         if (!user) return;
@@ -43,7 +70,11 @@ function HistoryPage() {
 
     return (
         <div style={{ maxWidth: 600, margin: "40px auto" }}>
-            <h1>Scan History</h1>
+            <h1 style={styles.title}>Scan History</h1>
+
+            <button style={styles.button} onClick={() => navigate("/")}>
+                Back to home
+            </button>
 
             {scans.length === 0 ? (
                 <p>No scans yet.</p>
