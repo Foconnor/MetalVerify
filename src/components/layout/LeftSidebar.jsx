@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Accounts from "../../features/Account/Accounts.jsx";
+import allAboutSilverLogo from "../../assets/all-about-silver-logo.webp";
 
 function LeftSidebar() {
   const [news, setNews] = useState([]);
@@ -31,6 +32,22 @@ function LeftSidebar() {
   return (
     <div style={styles.sidebar}>
       <Accounts />
+
+      {/* All About Silver Link */}
+      <a
+        href="https://video-blog-site.vercel.app/"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={styles.logoLink}
+      >
+        <img
+          src={allAboutSilverLogo}
+          alt="All About Silver"
+          style={styles.logo}
+        />
+
+        <span style={styles.logoText}>All About Silver</span>
+      </a>
 
       <h2>News</h2>
 
@@ -64,8 +81,33 @@ const styles = {
   newsCard: {
     marginBottom: "10px",
   },
+  
   newsSource: {
     fontSize: "12px",
     color: "gray",
+  },
+
+  logoLink: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    textDecoration: "none",
+    backgroundColor: "white",
+    padding: "10px",
+    borderRadius: "10px",
+    marginBottom: "20px",
+    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+  },
+
+  logo: {
+    width: "50px",
+    height: "50px",
+    objectFit: "contain",
+  },
+
+  logoText: {
+    color: "black",
+    fontWeight: "bold",
+    fontSize: "16px",
   },
 };
