@@ -75,10 +75,11 @@ export default function StartScan() {
     }, [selectedType, coins, bars]);
 
     return (
-        <div>
-            <h2>Start Scan</h2>
+        <div style={styles.container}>
+            <h3 > Select Item to Test</h3>
 
             <select
+                style={styles.input}
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
             >
@@ -87,15 +88,17 @@ export default function StartScan() {
             </select>
 
             <select
+                style={styles.input}
                 value={selectedTest}
                 onChange={(e) => setSelectedTest(e.target.value)}
             >
-                <option value="ping">Ping</option>
-                <option value="density">Density</option>
-                <option value="magnet">Magnet</option>
+                <option value="ping">Ping Test</option>
+                <option value="density">Density Test</option>
+                <option value="magnet">Magnet Test</option>
             </select>
 
             <select
+                style={styles.input}
                 value={selectedItemId || ""}
                 onChange={(e) => setSelectedItemId(e.target.value)}
             >
@@ -106,7 +109,7 @@ export default function StartScan() {
                 ))}
             </select>
 
-            <label>
+            <label style={styles.checkbox}>
                 <input
                     type="checkbox"
                     checked={enableThreeTest}
@@ -115,7 +118,43 @@ export default function StartScan() {
                 Enable 3-Test Mode
             </label>
 
-            <button onClick={handleStart}>Start</button>
+            <button style={styles.button} onClick={handleStart}>
+                Start Scan
+            </button>
         </div>
     );
 }
+
+const styles = {
+    container: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "15px",
+        maxWidth: "400px",
+        margin: "0 auto",
+    },
+
+    input: {
+        padding: "12px",
+        borderRadius: "10px",
+        border: "1px solid #ccc",
+        fontSize: "15px",
+    },
+
+    checkbox: {
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        fontSize: "30px",
+    },
+
+    button: {
+        padding: "14px",
+        border: "none",
+        borderRadius: "10px",
+        backgroundColor: "#1d3557",
+        color: "white",
+        fontSize: "16px",
+        cursor: "pointer",
+    },
+};

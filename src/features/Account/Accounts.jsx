@@ -1,11 +1,12 @@
 import "./Accounts.css";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase/firebaseConfig";
 import { useAuth } from "../../context/AuthContext";
 
 function Accounts() {
     const { user, loading, isAdmin } = useAuth();
+    const location = useLocation();
 
     if (loading) return <div>Loading...</div>;
 
@@ -31,7 +32,21 @@ function Accounts() {
                 <div className="account-buttons-form">
                     <p>Welcome, {user.displayName || user.email}</p>
 
-                    {isAdmin && <p>🛠 Admin Access</p>}
+                    {isAdmin && (
+                        location.pathname === "/admin-articles" ? (
+                            <Link to="/">
+                                <button className="account-button">
+                                    Home
+                                </button>
+                            </Link>
+                        ) : (
+                            <Link to="/admin-articles">
+                                <button className="account-button">
+                                    🛠 Admin Access
+                                </button>
+                            </Link>
+                        )
+                    )}
 
                     <button className="account-button" onClick={handleLogout}>
                         Log Out

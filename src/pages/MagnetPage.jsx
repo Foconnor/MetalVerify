@@ -1,13 +1,14 @@
 import MagnetTest from '../features/magnet/magnetTest.jsx';
 import PageLayout from '../components/layout/PageLayout.jsx';
 import { useNavigate } from "react-router-dom";
+import AppHeader from "../components/layout/AppHeader.jsx";
 
 function MagnetPage() {
   const navigate = useNavigate();
   
   return (
     <PageLayout>
-      <h1 style={styles.title}>Metal Verify</h1>
+      <AppHeader />
 
       {/* TEST BUTTONS */}
       <div style={styles.buttonContainer}>
