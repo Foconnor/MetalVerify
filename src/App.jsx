@@ -21,6 +21,7 @@ import { ThreeTestProvider } from "./context/ThreeTestContext";
 import HistoryPage from "./pages/HistoryPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import StartScan from "./pages/StartScan";
+import ThreeTestResult from "./pages/ThreeTestResult.jsx";
 
 
 function App() {
@@ -49,6 +50,10 @@ function App() {
                 <Route path="/ping" element={<PingPage />} />
                 <Route path="/density" element={<DensityPage />} />
                 <Route path="/magnet" element={<MagnetPage />} />
+                <Route
+                    path="/three-test-result/:id"
+                    element={<ThreeTestResult />}
+                />
 
                 {/* Account Pages */}
                 <Route path="/login" element={<Login />} />
