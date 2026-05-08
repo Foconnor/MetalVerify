@@ -12,11 +12,14 @@ function PingPage() {
       {/* TEST BUTTONS */}
       <div style={styles.buttonContainer}>
         <button style={styles.button} onClick={() => navigate("/")}>
-          Back
+          Back to home
         </button>
 
         <button style={styles.button} onClick={() => navigate("/density")}>
-          Next Test
+          Density Test
+        </button>
+        <button style={styles.button} onClick={() => navigate("/magnet")}>
+          Magnet Test
         </button>
       </div>
 

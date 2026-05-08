@@ -1,33 +1,18 @@
-import {useEffect, useState} from 'react'
-import {calculateCoinDensity} from '../DensityCalculations';
-import { fetchCoinProfiles } from '../../Account/DatabaseCode.js';
+import { useState } from "react";
+import { calculateCoinDensity } from "../DensityCalculations";
 
-function CoinDensityTest({ onCalculate, onHome }) {
+function CoinDensityTest({ selectedProfile, onCalculate, onHome }) {
     const [inputData, setInputData] = useState({
         diameter: "",
         thickness: "",
         weight: ""
     });
 
-    const [coinProfiles, setCoinProfiles] = useState({});
-    const [selectedCoin, setSelectedCoin] = useState("unknown");
-
-    useEffect(() => {
-        const loadCoinProfiles = async () => {
-            const profiles = await fetchCoinProfiles();
-            setCoinProfiles(profiles);
-        };
-        loadCoinProfiles();
-        
-    }, []);
-
     const handleCoinChange = (e) => {
-        setInputData({ ...inputData, [e.target.name]: e.target.value });
-    };
-
-    const handleCoinSelect = (e) => {
-        const value = e.target.value;
-        setSelectedCoin(value);
+        setInputData({
+            ...inputData,
+            [e.target.name]: e.target.value
+        });
     };
 
     const handleSubmit = () => {
@@ -36,90 +21,115 @@ function CoinDensityTest({ onCalculate, onHome }) {
             inputData.thickness,
             inputData.weight
         );
-        
-        const expectedDensity = 10.49;
-        const deviation = Math.abs(density - expectedDensity);
-        const confidence = Math.max(0, 100 - (deviation / expectedDensity) * 100).toFixed(2);
 
-        const resultData = {
-            confidence,
-            density,
-            expectedDensity
-        };
+        const expectedDensity =
+            selectedProfile?.geometricDensity || 10.49;
+
+        const deviation = Math.abs(
+            density - expectedDensity
+        );
+
+        const confidence = Math.max(
+            0,
+            100 - (deviation / expectedDensity) * 100
+        ).toFixed(2);
+
+        let verdict = "Uncertain";
+
+        if (confidence >= 85)
+            verdict = "Likely Genuine";
+        else if (confidence >= 60)
+            verdict = "Possibly Genuine";
+        else
+            verdict = "Likely Fake";
 
         onCalculate({
-            type: "density",
-            itemType: "coin",
-            input: inputData,
-            results: resultData,
-            selectedCoinData: selectedCoin === "unknown" ? null : coinProfiles[selectedCoin]
+            density,
+            expectedDensity,
+            confidence,
+            verdict,
+            inputs: inputData
         });
     };
-    
+
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px', margin: '0 auto' }}>
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "1rem",
+                maxWidth: "400px",
+                margin: "0 auto"
+            }}
+        >
             <h2>Coin Density Test</h2>
 
-            {/* Coin Selector */}
-            <div className="form-row">
-                <label className="form-label">Select Coin:</label>
-                <select
-                value={selectedCoin}
-                onChange={handleCoinSelect}
-                className="form-input"
-                >
-                <option value="unknown">Not Sure / Don't Know</option>
-                {Object.entries(coinProfiles).map(([id, coin]) => (
-                    <option key={id} value={id}>
-                    {coin.name}
-                    </option>
-                ))}
-                </select>
-            </div>
-
+            <p>
+                Testing:
+                <strong> {selectedProfile?.name}</strong>
+            </p>
 
             {/* Diameter */}
             <div className="form-row">
-                <label className="form-label">Diameter:</label>
+                <label className="form-label">
+                    Diameter:
+                </label>
+
                 <input
-                type="number"
-                name="diameter"
-                value={inputData.diameter}
-                onChange={handleCoinChange}
-                className="form-input"
-            />
+                    type="number"
+                    name="diameter"
+                    value={inputData.diameter}
+                    onChange={handleCoinChange}
+                    className="form-input"
+                />
+
                 <span>cm</span>
             </div>
 
             {/* Thickness */}
             <div className="form-row">
-                <label className="form-label">Thickness:</label>
+                <label className="form-label">
+                    Thickness:
+                </label>
+
                 <input
-                type="number"
-                name="thickness"
-                value={inputData.thickness}
-                onChange={handleCoinChange}
-                className="form-input"
+                    type="number"
+                    name="thickness"
+                    value={inputData.thickness}
+                    onChange={handleCoinChange}
+                    className="form-input"
                 />
+
                 <span>cm</span>
             </div>
 
             {/* Weight */}
             <div className="form-row">
-                <label className="form-label">Weight:</label>
+                <label className="form-label">
+                    Weight:
+                </label>
+
                 <input
-                type="number"
-                name="weight"
-                value={inputData.weight}
-                onChange={handleCoinChange}
-                className="form-input"
+                    type="number"
+                    name="weight"
+                    value={inputData.weight}
+                    onChange={handleCoinChange}
+                    className="form-input"
                 />
+
                 <span>g</span>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
-                <button onClick={onHome}>Home</button>
-                <button onClick={handleSubmit}>Calculate</button>
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: "1rem"
+                }}
+            >
+                <button onClick={handleSubmit}>
+                    Calculate
+                </button>
             </div>
         </div>
     );
