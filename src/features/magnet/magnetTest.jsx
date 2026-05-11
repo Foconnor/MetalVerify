@@ -16,6 +16,7 @@ function MagnetTest() {
     const { selectedItem } = useTestStore();
     const { registerTest } = useThreeTest();
     const { user } = useAuth();
+    const [inventoryId, setInventoryId] = useState(null);
 
     const [step, setStep] = useState(1);
 
@@ -54,7 +55,8 @@ function MagnetTest() {
             },
 
             label: selectedItem?.label || "",
-            threeTestId: activeThreeTestId || null
+            threeTestId: activeThreeTestId || null,
+            inventoryId
         };
 
         // save to tests collection
@@ -70,7 +72,8 @@ function MagnetTest() {
                 result: verdict,
                 confidence,
                 label: selectedItem?.label || "",
-                threeTestId: activeThreeTestId || null
+                threeTestId: activeThreeTestId || null,
+                inventoryId
             });
         }
 

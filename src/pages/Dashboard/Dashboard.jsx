@@ -98,6 +98,12 @@ function Dashboard({ onNavigate }) {
             <button onClick={() => navigate("/history")} style={styles.button}>
               View History
             </button>
+            <button
+                style={styles.button}
+                onClick={() => navigate("/inventory")}
+            >
+              Inventory
+            </button>
           </div>
         ) : (
           <div style={styles.recentContainer}>
