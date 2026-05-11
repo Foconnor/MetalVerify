@@ -22,6 +22,8 @@ import HistoryPage from "./pages/HistoryPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import StartScan from "./pages/StartScan";
 import ThreeTestResult from "./pages/ThreeTestResult.jsx";
+import InventoryPage from "./pages/InventoryPage.jsx";
+import AddInventoryItem from "./pages/Dashboard/AddInventoryItem.jsx";
 
 
 function App() {
@@ -60,6 +62,8 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
 
                 {/* 🔐 Protected Route (logged-in users only) */}
+                <Route path="/inventory" element={<InventoryPage />} />
+                <Route path="/inventory/add" element={<AddInventoryItem />} />
                 <Route
                     path="/history"
                     element={

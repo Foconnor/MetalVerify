@@ -11,6 +11,8 @@ import { useThreeTest } from "../../context/ThreeTestContext";
 import { useTestSession } from "../../context/TestSessionContext";
 import { useTestStore } from "../../context/TestStoreContext";
 import { useNavigate } from "react-router-dom";
+import { saveInventoryItem } from "../../firebase/saveInventoryItem";
+
 
 
 
@@ -30,6 +32,7 @@ export default function PingTest() {
   const navigate = useNavigate();
   const selectedProfile = selectedItem;
   const selectedType = selectedItem?.type;
+  const [inventoryId, setInventoryId] = useState(null);
 
 
   const audioCtxRef = useRef(null);
@@ -211,7 +214,8 @@ export default function PingTest() {
         duration,
         confidence,
         label,
-        threeTestId
+        threeTestId,
+        inventoryId
       });
 
       await savePingTest({
@@ -231,7 +235,8 @@ export default function PingTest() {
 
         // NEW
         label,
-        threeTestId: activeThreeTestId
+        threeTestId: activeThreeTestId,
+        inventoryId
       });
     }
 
@@ -426,6 +431,7 @@ export default function PingTest() {
                 />
               </div>
 
+
               <p
                   style={{
                     marginTop: 10,
@@ -441,6 +447,23 @@ export default function PingTest() {
               >
                 {result}
               </p>
+              <button
+                  onClick={() =>
+                      navigate("/inventory/add", {
+                        state: {
+                          testData: {
+                            type: "ping",
+                            profileName: selectedProfile?.name,
+                            confidence: metrics?.confidence,
+                            result,
+                            threeTestId
+                          }
+                        }
+                      })
+                  }
+              >
+                Add To Inventory
+              </button>
 
             </div>
         )}
