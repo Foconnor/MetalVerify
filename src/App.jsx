@@ -26,6 +26,7 @@ import StartScan from "./pages/StartScan";
 import ThreeTestResult from "./pages/ThreeTestResult.jsx";
 import InventoryPage from "./pages/InventoryPage.jsx";
 import AddInventoryItem from "./pages/Dashboard/AddInventoryItem.jsx";
+import InventoryItemDetail from "./pages/InventoryItemDetail";
 
 
 function App() {
@@ -70,6 +71,7 @@ function App() {
                 {/* 🔐 Protected Route (logged-in users only) */}
                 <Route path="/inventory" element={<InventoryPage />} />
                 <Route path="/inventory/add" element={<AddInventoryItem />} />
+                <Route path="/inventory/:id" element={<InventoryItemDetail />} />
                 <Route
                     path="/history"
                     element={
