@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { saveDensityTest } from '../../Account/DatabaseCode.js';
 import { saveScan } from '../../../firebase/saveScan.js';
 import { getAuth } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 function BarDensityResult({ data, onReset}) {
   const [barPosition, setBarPosition] = useState(50);
   const user = getAuth().currentUser;
+    const navigate = useNavigate();
 
   console.log("BarDensityResult received data:", data);
 
@@ -148,6 +150,26 @@ function BarDensityResult({ data, onReset}) {
       <button onClick={handleUpload} style={{ marginLeft: "1rem" }}>
         Save Result
       </button>
+        <button
+            onClick={() =>
+                navigate("/inventory/add", {
+                    state: {
+                        testData: {
+                            type: "density",
+                            profileName:
+                                data.selectedCoinData?.name ||
+                                "Unknown",
+                            confidence:
+                            data.results?.confidence,
+                            threeTestId:
+                            data.threeTestId
+                        }
+                    }
+                })
+            }
+        >
+            Add To Inventory
+        </button>
     </div>
   );
 }

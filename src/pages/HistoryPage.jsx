@@ -159,6 +159,18 @@ function HistoryPage() {
                                 <p><strong>Confidence:</strong> {scan.results?.confidence}%</p>
                             </>
                         )}
+
+                        <button
+                            onClick={() =>
+                                navigate("/inventory/add", {
+                                    state: {
+                                        testData: scan
+                                    }
+                                })
+                            }
+                        >
+                            Add To Inventory
+                        </button>
                     </div>
                 ))
             )}

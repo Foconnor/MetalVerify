@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function CoinDensityResult({ data, onReset }) {
   const [barPosition, setBarPosition] = useState(50);
-
+    const navigate = useNavigate();
   const calculateBarPosition = (density) => {
     const EXPECTED = data.expectedDensity || 10.49;
     const MAX_RANGE = 2;
@@ -98,6 +99,26 @@ function CoinDensityResult({ data, onReset }) {
 
           <h3>{data.verdict}</h3>
         </div>
+          <button
+              onClick={() =>
+                  navigate("/inventory/add", {
+                      state: {
+                          testData: {
+                              type: "density",
+                              profileName:
+                                  data.selectedCoinData?.name ||
+                                  "Unknown",
+                              confidence:
+                              data.results?.confidence,
+                              threeTestId:
+                              data.threeTestId
+                          }
+                      }
+                  })
+              }
+          >
+              Add To Inventory
+          </button>
 
         <button onClick={onReset}>
           Test Again
