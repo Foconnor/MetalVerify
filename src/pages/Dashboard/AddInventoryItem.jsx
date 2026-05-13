@@ -1,40 +1,37 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-
 import { useAuth } from "../../context/AuthContext";
-import { useTestStore } from "../../context/TestStoreContext";
 import { saveInventoryItem } from "../../firebase/saveInventoryItem";
 
 export default function AddInventoryItem() {
     const navigate = useNavigate();
     const location = useLocation();
-
     const { user } = useAuth();
-    const { selectedItem } = useTestStore();
 
-    // Optional test data passed from result pages
-    const testData = location.state?.testData || null;
+    const testData = location.state?.testData || {};
 
-    // Basic fields
-    const [name, setName] = useState(selectedItem?.name || testData?.profileName || "");
-    const [type, setType] = useState(selectedItem?.type || "coin");
+    const [form, setForm] = useState({
+        inventoryId: "",           // e.g. COIN-2026-0147
+        type: "coin",              // Coin, Round, Bar
+        description: testData.profileName || "",
+        mintRefiner: "",
+        weight: "",
+        purity: ".999",
+        quantity: "1",
+        serialLot: "",
+        yearDate: "",
+        purchaseDate: "",
+        costPerOz: "",
+        totalCost: "",
+        location: "",
+        notes: "",
+    });
 
-    const [year, setYear] = useState("");
-    const [mint, setMint] = useState("");
-    const [metal, setMetal] = useState("silver");
-    const [weight, setWeight] = useState("");
-    const [diameter, setDiameter] = useState("");
-    const [thickness, setThickness] = useState("");
+    const handleChange = (e) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
 
-    const [description1, setDescription1] = useState("");
-    const [description2, setDescription2] = useState("");
-
-    const [serialNumber, setSerialNumber] = useState("");
-    const [notes, setNotes] = useState("");
-
-    const [showAdvanced, setShowAdvanced] = useState(false);
-
-    async function handleSave() {
+    const handleSave = async () => {
         if (!user) {
             alert("You must be logged in.");
             return;
@@ -43,118 +40,180 @@ export default function AddInventoryItem() {
         try {
             await saveInventoryItem({
                 userId: user.uid,
-                item: {
-                    name,
-                    type,
-                    year,
-                    mint,
-                    metal,
-                    weight,
-                    diameter,
-                    thickness,
-                    description1,
-                    description2,
-                    serialNumber,
-                    notes,
-                    linkedThreeTestId: testData?.threeTestId || null,
-                }
+                item: form
             });
 
             alert("Inventory item saved successfully!");
             navigate("/inventory");
-
         } catch (error) {
             console.error(error);
             alert("Failed to save inventory item.");
         }
-    }
+    };
 
     return (
-        <div style={{ maxWidth: 600, margin: "40px auto", padding: 20 }}>
-            <h1>Add To Inventory</h1>
+        <div style={{ maxWidth: 700, margin: "40px auto", padding: 20 }}>
+            <h1>Add to Inventory</h1>
 
             <div style={{ marginBottom: 15 }}>
-                <label>Name</label>
+                <label>Name/Inventory ID</label>
                 <input
                     type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    name="inventoryId"
+                    value={form.inventoryId}
+                    onChange={handleChange}
                     style={styles.input}
+                    placeholder="Name/Inventory ID"
                 />
             </div>
 
             <div style={{ marginBottom: 15 }}>
                 <label>Type</label>
-                <select
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
-                    style={styles.input}
-                >
+                <select name="type" value={form.type} onChange={handleChange} style={styles.input}>
                     <option value="coin">Coin</option>
                     <option value="bar">Bar</option>
                 </select>
             </div>
 
             <div style={{ marginBottom: 15 }}>
-                <label>Year</label>
-                <input type="text" value={year} onChange={(e) => setYear(e.target.value)} style={styles.input} />
+                <label>Description</label>
+                <input
+                    type="text"
+                    name="description"
+                    value={form.description}
+                    onChange={handleChange}
+                    style={styles.input}
+                    placeholder="2024 American Silver Eagle"
+                />
             </div>
 
             <div style={{ marginBottom: 15 }}>
-                <label>Mint</label>
-                <input type="text" value={mint} onChange={(e) => setMint(e.target.value)} style={styles.input} />
+                <label>Mint / Refiner</label>
+                <input
+                    type="text"
+                    name="mintRefiner"
+                    value={form.mintRefiner}
+                    onChange={handleChange}
+                    style={styles.input}
+                    placeholder="U.S. Mint / Geiger"
+                />
             </div>
 
             <div style={{ marginBottom: 15 }}>
-                <label>Metal</label>
-                <input type="text" value={metal} onChange={(e) => setMetal(e.target.value)} style={styles.input} />
+                <label>Weight</label>
+                <input
+                    type="text"
+                    name="weight"
+                    value={form.weight}
+                    onChange={handleChange}
+                    style={styles.input}
+                    placeholder="1 oz or 10 oz"
+                />
             </div>
 
             <div style={{ marginBottom: 15 }}>
-                <label>Weight (g)</label>
-                <input type="text" value={weight} onChange={(e) => setWeight(e.target.value)} style={styles.input} />
+                <label>Purity</label>
+                <input
+                    type="text"
+                    name="purity"
+                    value={form.purity}
+                    onChange={handleChange}
+                    style={styles.input}
+                    placeholder=".999 or .9999"
+                />
             </div>
 
             <div style={{ marginBottom: 15 }}>
-                <label>Short Description</label>
-                <textarea value={description1} onChange={(e) => setDescription1(e.target.value)} style={styles.textarea} />
+                <label>Quantity</label>
+                <input
+                    type="number"
+                    name="quantity"
+                    value={form.quantity}
+                    onChange={handleChange}
+                    style={styles.input}
+                />
             </div>
 
             <div style={{ marginBottom: 15 }}>
-                <label>Detailed Notes</label>
-                <textarea value={description2} onChange={(e) => setDescription2(e.target.value)} style={styles.textarea} />
+                <label>Serial / Lot #</label>
+                <input
+                    type="text"
+                    name="serialLot"
+                    value={form.serialLot}
+                    onChange={handleChange}
+                    style={styles.input}
+                />
             </div>
 
-            <button
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                style={styles.advancedButton}
-            >
-                {showAdvanced ? "Hide Advanced Fields" : "Show Advanced Fields"}
-            </button>
+            <div style={{ marginBottom: 15 }}>
+                <label>Year / Date</label>
+                <input
+                    type="text"
+                    name="yearDate"
+                    value={form.yearDate}
+                    onChange={handleChange}
+                    style={styles.input}
+                    placeholder="2024"
+                />
+            </div>
 
-            {showAdvanced && (
-                <div style={{ marginTop: 20, padding: 15, border: "1px solid #ccc", borderRadius: 8 }}>
-                    <div style={{ marginBottom: 15 }}>
-                        <label>Diameter (cm)</label>
-                        <input type="text" value={diameter} onChange={(e) => setDiameter(e.target.value)} style={styles.input} />
-                    </div>
+            <div style={{ marginBottom: 15 }}>
+                <label>Purchase Date (YYYY-MM-DD)</label>
+                <input
+                    type="date"
+                    name="purchaseDate"
+                    value={form.purchaseDate}
+                    onChange={handleChange}
+                    style={styles.input}
+                />
+            </div>
 
-                    <div style={{ marginBottom: 15 }}>
-                        <label>Thickness (cm)</label>
-                        <input type="text" value={thickness} onChange={(e) => setThickness(e.target.value)} style={styles.input} />
-                    </div>
+            <div style={{ marginBottom: 15 }}>
+                <label>Cost per oz ($)</label>
+                <input
+                    type="number"
+                    step="0.01"
+                    name="costPerOz"
+                    value={form.costPerOz}
+                    onChange={handleChange}
+                    style={styles.input}
+                />
+            </div>
 
-                    <div style={{ marginBottom: 15 }}>
-                        <label>Serial Number</label>
-                        <input type="text" value={serialNumber} onChange={(e) => setSerialNumber(e.target.value)} style={styles.input} />
-                    </div>
+            <div style={{ marginBottom: 15 }}>
+                <label>Total Cost ($)</label>
+                <input
+                    type="number"
+                    step="0.01"
+                    name="totalCost"
+                    value={form.totalCost}
+                    onChange={handleChange}
+                    style={styles.input}
+                />
+            </div>
 
-                    <div style={{ marginBottom: 15 }}>
-                        <label>Extra Notes</label>
-                        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} style={styles.textarea} />
-                    </div>
-                </div>
-            )}
+            <div style={{ marginBottom: 15 }}>
+                <label>Location</label>
+                <input
+                    type="text"
+                    name="location"
+                    value={form.location}
+                    onChange={handleChange}
+                    style={styles.input}
+                    placeholder="Safe A - Shelf 2"
+                />
+            </div>
+
+            <div style={{ marginBottom: 15 }}>
+                <label>Notes</label>
+                <textarea
+                    name="notes"
+                    value={form.notes}
+                    onChange={handleChange}
+                    style={styles.textarea}
+                    placeholder="Any additional information..."
+                />
+            </div>
 
             <button onClick={handleSave} style={styles.saveButton}>
                 Save to Inventory
@@ -175,7 +234,7 @@ const styles = {
         width: "100%",
         padding: 10,
         marginTop: 5,
-        minHeight: 80,
+        minHeight: 100,
         borderRadius: 6,
         border: "1px solid #ccc"
     },
@@ -189,12 +248,5 @@ const styles = {
         color: "white",
         cursor: "pointer",
         fontSize: 16
-    },
-    advancedButton: {
-        marginTop: 10,
-        padding: 10,
-        borderRadius: 6,
-        border: "1px solid #ccc",
-        cursor: "pointer"
     }
 };
