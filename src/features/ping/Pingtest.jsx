@@ -454,13 +454,14 @@ export default function PingTest() {
                           testData: {
                             type: "ping",
                             profileName: selectedProfile?.name,
+                            result: result,
                             confidence: metrics?.confidence,
-                            result,
-                            threeTestId
+                            threeTestId: threeTestId
                           }
                         }
                       })
                   }
+                  style={{ marginTop: "15px", padding: "10px 20px" }}
               >
                 Add To Inventory
               </button>

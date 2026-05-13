@@ -1,39 +1,17 @@
-import {
-    collection,
-    addDoc,
-    serverTimestamp
-} from "firebase/firestore";
-
+// src/firebase/saveInventoryItem.js
 import { db } from "./firebaseConfig";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
-export async function saveInventoryItem(data) {
+export const saveInventoryItem = async (data) => {
     try {
-
-        const docRef = await addDoc(
-            collection(db, "inventory"),
-            {
-                ...data.item,
-
-                userId: data.userId,
-
-                createdAt: serverTimestamp()
-            }
-        );
-
-        console.log(
-            "Inventory item saved:",
-            docRef.id
-        );
-
+        const docRef = await addDoc(collection(db, "inventory"), {
+            userId: data.userId,
+            ...data.item,
+            createdAt: serverTimestamp(),
+        });
         return docRef.id;
-
     } catch (error) {
-
-        console.error(
-            "Error saving inventory item:",
-            error
-        );
-
+        console.error("Error saving inventory item:", error);
         throw error;
     }
-}
+};
