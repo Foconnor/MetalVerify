@@ -1,9 +1,12 @@
 import { useState } from "react";
 import MagnetTestResult from "../Animation/MagnetTestResult";
+import { useNavigate } from "react-router-dom";
+
 
 function ResultStage({ onResult }) {
     const [result, setResult] = useState("");
-
+    const navigate = useNavigate();
+    const { selectedItem } = useTestStore();
     const handleSave = () => {
         if (!result) return;
 
@@ -42,6 +45,22 @@ function ResultStage({ onResult }) {
                 style={{ marginTop: "20px" }}
             >
                 Save Result
+            </button>
+            <button
+                onClick={() =>
+                    navigate("/inventory/add", {
+                        state: {
+                            testData: {
+                                type: "magnet",
+                                profileName:
+                                selectedItem?.name,
+                                result
+                            }
+                        }
+                    })
+                }
+            >
+                Add To Inventory
             </button>
         </div>
     );

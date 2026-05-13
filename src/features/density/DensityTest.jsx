@@ -28,6 +28,7 @@ function DensityTest() {
   const navigate = useNavigate();
   const selectedType = selectedItem?.type;
   const selectedProfile = selectedItem;
+  const [inventoryId, setInventoryId] = useState(null);
 
   const handleResult = async (data) => {
     setResultData(data);
@@ -52,7 +53,8 @@ function DensityTest() {
       },
 
       label,
-      threeTestId: assignedThreeTestId
+      threeTestId: assignedThreeTestId,
+      inventoryId
     };
 
     if (user) {
@@ -66,7 +68,8 @@ function DensityTest() {
         result: data.verdict,
         confidence: data.confidence,
         label,
-        threeTestId: assignedThreeTestId
+        threeTestId: assignedThreeTestId,
+        inventoryId
       });
     }
     if (completed && assignedThreeTestId) {
