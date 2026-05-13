@@ -52,11 +52,12 @@ function ResultStage({ onResult }) {
                         state: {
                             testData: {
                                 type: "magnet",
-                                profileName:
-                                selectedItem?.name,
-                                result
-                            }
-                        }
+                                profileName: selectedProfile?.name,
+                                result: result,
+                                confidence: metrics?.confidence,
+                                threeTestId: activeThreeTestId,
+                            },
+                        },
                     })
                 }
             >

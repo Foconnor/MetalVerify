@@ -156,15 +156,12 @@ function BarDensityResult({ data, onReset}) {
                     state: {
                         testData: {
                             type: "density",
-                            profileName:
-                                data.selectedCoinData?.name ||
-                                "Unknown",
-                            confidence:
-                            data.results?.confidence,
-                            threeTestId:
-                            data.threeTestId
-                        }
-                    }
+                            profileName: selectedProfile?.name,
+                            result: result,
+                            confidence: metrics?.confidence,
+                            threeTestId: activeThreeTestId,
+                        },
+                    },
                 })
             }
         >
