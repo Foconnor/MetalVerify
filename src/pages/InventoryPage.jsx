@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import {
     collection,
-    getDocs
+    getDocs, query, where
 } from "firebase/firestore";
 
 import { db } from "../firebase/firebaseConfig";
@@ -16,9 +16,13 @@ export default function InventoryPage() {
         if (!user) return;
 
         async function fetchInventory() {
-            const snapshot = await getDocs(
-                collection(db, "users", user.uid, "inventory")
+
+            const q = query(
+                collection(db, "inventory"),
+                where("userId", "==", user.uid)
             );
+
+            const snapshot = await getDocs(q);
 
             const results = snapshot.docs.map(doc => ({
                 id: doc.id,
