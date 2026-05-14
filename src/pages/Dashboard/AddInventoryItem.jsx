@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { saveInventoryItem } from "../../firebase/saveInventoryItem";
+import { useTestStore } from "../../context/TestStoreContext";
 
 export default function AddInventoryItem() {
     const navigate = useNavigate();

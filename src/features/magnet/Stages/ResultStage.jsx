@@ -1,12 +1,15 @@
 import { useState } from "react";
-import MagnetTestResult from "../Animation/MagnetTestResult";
 import { useNavigate } from "react-router-dom";
+import { useTestStore } from "../../../context/TestStoreContext";   // ← FIXED PATH
 
+import MagnetTestResult from "../Animation/MagnetTestResult";
 
 function ResultStage({ onResult }) {
-    const [result, setResult] = useState("");
     const navigate = useNavigate();
     const { selectedItem } = useTestStore();
+
+    const [result, setResult] = useState("");
+
     const handleSave = () => {
         if (!result) return;
 
@@ -14,15 +17,26 @@ function ResultStage({ onResult }) {
 
         if (result === "slow") {
             verdict = "Highly Likely Genuine";
-        }
-        else if (result === "fast") {
+        } else if (result === "fast") {
             verdict = "Uncertain";
-        }
-        else if (result === "stick") {
+        } else if (result === "stick") {
             verdict = "Likely Fake";
         }
 
         onResult(verdict);
+    };
+
+    const handleAddToInventory = () => {
+        navigate("/inventory/add", {
+            state: {
+                testData: {
+                    type: "magnet",
+                    profileName: selectedItem?.name || "Unknown Item",
+                    result: result,
+                    confidence: result === "slow" ? 85 : result === "fast" ? 50 : 30,
+                }
+            }
+        });
     };
 
     return (
@@ -40,29 +54,18 @@ function ResultStage({ onResult }) {
                 </p>
             )}
 
-            <button
-                onClick={handleSave}
-                style={{ marginTop: "20px" }}
-            >
-                Save Result
-            </button>
-            <button
-                onClick={() =>
-                    navigate("/inventory/add", {
-                        state: {
-                            testData: {
-                                type: "magnet",
-                                profileName: selectedProfile?.name,
-                                result: result,
-                                confidence: metrics?.confidence,
-                                threeTestId: activeThreeTestId,
-                            },
-                        },
-                    })
-                }
-            >
-                Add To Inventory
-            </button>
+            <div style={{ marginTop: "25px", display: "flex", gap: "10px", justifyContent: "center" }}>
+                <button onClick={handleSave}>
+                    Save Result
+                </button>
+
+                <button
+                    onClick={handleAddToInventory}
+                    style={{ backgroundColor: "#1e88e5", color: "white" }}
+                >
+                    Add To Inventory
+                </button>
+            </div>
         </div>
     );
 }

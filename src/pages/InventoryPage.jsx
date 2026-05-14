@@ -3,9 +3,11 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useTestStore } from "../context/TestStoreContext";
 import Inventory from "./Inventory.jsx";
 
 export default function InventoryPage() {
+    const { user } = useAuth();
     const navigate = useNavigate();
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -118,16 +120,3 @@ export default function InventoryPage() {
         </div>
     );
 }
-
-const styles = {
-  button: {
-    flex: 1,
-    padding: "15px",
-    fontSize: "16px",
-    borderRadius: "10px",
-    border: "none",
-    cursor: "pointer",
-    backgroundColor: "#1e1e1e",
-    color: "white",
-  },
-};
