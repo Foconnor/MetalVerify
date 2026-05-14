@@ -32,7 +32,17 @@ export default function StartScan() {
             ...selectedItem
         });
 
-        if (enableThreeTest) startThreeTest();
+         // 3-test flow takes priority
+        if (enableThreeTest) {
+            startThreeTest();
+            navigate("/three-test-flow", {
+                state: {
+                    selectedItemId,
+                    selectedTest,
+                },
+            });
+            return;
+        }
 
         navigate(`/${selectedTest}`);
     };
@@ -94,8 +104,7 @@ export default function StartScan() {
 
     return (
         <div style={styles.container}>
-            <h3 > Select Item to Test</h3>
-
+           
             {/* STEP 1: Select Test */}
             <div style={styles.section}>
                 <p style={styles.stepTitle}>Step 1: Select Test</p>
@@ -193,20 +202,6 @@ export default function StartScan() {
 
                 <button style={styles.button} onClick={handleStart}>
                     Start Scan
-                </button>
-
-                <button
-                    onClick={() =>
-                        navigate("/three-test-flow", {
-                            state: {
-                                selectedItemId,
-                                selectedTest,
-                            },
-                        })
-                    }
-                    disabled={!enableThreeTest}
-                >
-                    Start 3 Test Flow
                 </button>
             </div>
             )}

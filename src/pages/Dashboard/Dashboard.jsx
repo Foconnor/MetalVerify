@@ -151,6 +151,7 @@ const styles = {
     cursor: "pointer",
     backgroundColor: "#1e1e1e",
     color: "white",
+    margin : "0 5px",
   },
 
   recentContainer: {
