@@ -1,18 +1,12 @@
-<<<<<<< HEAD
 import { useEffect, useState } from "react";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { useAuth } from "../context/AuthContext";
-=======
-import PageLayout from "../components/layout/PageLayout.jsx";
-import AppHeader from "../components/layout/AppHeader.jsx";
->>>>>>> mo-ux-visual-branch
 import { useNavigate } from "react-router-dom";
 import Inventory from "./Inventory.jsx";
 
 export default function InventoryPage() {
     const navigate = useNavigate();
-<<<<<<< HEAD
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const styles = {
@@ -122,19 +116,6 @@ export default function InventoryPage() {
                 Back to home
             </button>
         </div>
-=======
-
-    return (
-        <PageLayout>
-            <AppHeader />
-            <div >
-                <button style={styles.button} onClick={() => navigate("/")}>
-                    Back to Home
-                </button>
-            </div>
-            <Inventory />
-        </PageLayout>
->>>>>>> mo-ux-visual-branch
     );
 }
 
