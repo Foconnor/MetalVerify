@@ -28,6 +28,10 @@ import InventoryPage from "./pages/InventoryPage.jsx";
 import AddInventoryItem from "./pages/Dashboard/AddInventoryItem.jsx";
 import InventoryItemDetail from "./pages/InventoryItemDetail";
 
+import ThreeTestFlowControl from "./pages/ThreeTestFlowControlPage.jsx";
+
+
+
 
 function App() {
     const { user, isAdmin } = useAuth();
@@ -59,6 +63,7 @@ function App() {
                     path="/three-test-result/:id"
                     element={<ThreeTestResult />}
                 />
+                <Route path="/three-test-flow" element={<ThreeTestFlowControl />} />
 
                 {/* Account Pages */}
                 <Route path="/login" element={<Login />} />
