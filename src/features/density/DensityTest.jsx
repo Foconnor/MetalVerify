@@ -39,6 +39,9 @@ function DensityTest() {
     const assignedThreeTestId = testSession?.threeTestId;
     const completed = testSession?.completed;
 
+    console.log("Registered test:", testSession);
+    console.log("Tests remaining:", testSession ? testSession.testsRemaining : "N/A");
+
     const testData = {
       itemType: selectedType,
       profileName: selectedProfile?.name,

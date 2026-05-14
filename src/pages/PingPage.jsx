@@ -12,8 +12,8 @@ function PingPage() {
 
       {/* TEST BUTTONS */}
       <div style={styles.buttonContainer}>
-        <button style={styles.button} onClick={() => navigate("/")}>
-          Back to home
+        <button style={styles.button} onClick={() => navigate("/start-scan")}>
+          Back to Selection
         </button>
 
         <button style={styles.button} onClick={() => navigate("/density")}>
