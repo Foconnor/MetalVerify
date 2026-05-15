@@ -12,6 +12,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 function MagnetTest() {
+    const { threeTestMode, testsRemaining } = useThreeTest();
     const navigate = useNavigate();
     const { selectedItem } = useTestStore();
     const { registerTest } = useThreeTest();
@@ -92,6 +93,21 @@ function MagnetTest() {
             }}
         >
             <h1>Magnet Test</h1>
+            {threeTestMode && (
+                <div style={{ marginBottom: 20, textAlign: "center" }}>
+                    <p><strong>3-Test Mode Active</strong> — {testsRemaining} remaining</p>
+                    <div style={{ height: 8, background: "#ddd", borderRadius: 4, overflow: "hidden" }}>
+                        <div style={{
+                            height: "100%",
+                            width: `${((3 - testsRemaining) / 3) * 100}%`,
+                            background: "linear-gradient(to right, #4caf50, #2196f3)",
+                            transition: "width 0.4s"
+                        }} />
+                    </div>
+                </div>
+            )}
+
+
 
             {selectedItem && (
                 <div

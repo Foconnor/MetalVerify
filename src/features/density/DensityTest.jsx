@@ -29,6 +29,7 @@ function DensityTest() {
   const selectedType = selectedItem?.type;
   const selectedProfile = selectedItem;
   const [inventoryId, setInventoryId] = useState(null);
+  const { threeTestMode, testsRemaining } = useThreeTest();
 
   const handleResult = async (data) => {
     setResultData(data);
@@ -91,8 +92,22 @@ function DensityTest() {
 
 
   return (
+
       <div>
 
+        {threeTestMode && (
+            <div style={{ marginBottom: 20, textAlign: "center" }}>
+              <p><strong>3-Test Mode Active</strong> — {testsRemaining} remaining</p>
+              <div style={{ height: 8, background: "#ddd", borderRadius: 4, overflow: "hidden" }}>
+                <div style={{
+                  height: "100%",
+                  width: `${((3 - testsRemaining) / 3) * 100}%`,
+                  background: "linear-gradient(to right, #4caf50, #2196f3)",
+                  transition: "width 0.4s"
+                }} />
+              </div>
+            </div>
+        )}
         <p>
           Selected: <strong>{selectedProfile.name}</strong>
         </p>

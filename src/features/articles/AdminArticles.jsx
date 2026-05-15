@@ -5,234 +5,209 @@ import {
     getArticles,
     deleteArticle,
     addArticle,
+    updateArticle,
 } from "../../firebase/articleServices.js";
 
+import {
+    collection,
+    getDocs,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    doc
+} from "firebase/firestore";
+import { db } from "../../firebase/firebaseConfig";
+
 function AdminArticles() {
+    const [activeTab, setActiveTab] = useState("articles");
+
+    // Articles
     const [articles, setArticles] = useState([]);
 
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
-    const [link, setLink] = useState("");
+    // Coins & Bars
+    const [coins, setCoins] = useState([]);
+    const [bars, setBars] = useState([]);
 
-    const fetchArticles = async () => {
-        const data = await getArticles();
-        setArticles(data);
+    // Form state
+    const [form, setForm] = useState({
+        title: "", description: "", link: "",           // Article fields
+        name: "", idealFreq: "", tolerance: "", minDuration: "",
+        weight: "", diameter: "", thickness: "", expectedDensity: "10.49"
+    });
+
+    const [editingId, setEditingId] = useState(null);
+
+    // Fetch all data
+    const fetchData = async () => {
+        // Articles
+        const articleData = await getArticles();
+        setArticles(articleData);
+
+        // Coins
+        const coinSnap = await getDocs(collection(db, "coinProfiles"));
+        setCoins(coinSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+
+        // Bars
+        const barSnap = await getDocs(collection(db, "barProfiles"));
+        setBars(barSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     };
 
     useEffect(() => {
-        fetchArticles();
+        fetchData();
     }, []);
 
-    const handleDelete = async (id) => {
-        await deleteArticle(id);
-        fetchArticles();
+    const resetForm = () => {
+        setForm({
+            title: "", description: "", link: "",
+            name: "", idealFreq: "", tolerance: "", minDuration: "",
+            weight: "", diameter: "", thickness: "", expectedDensity: "10.49"
+        });
+        setEditingId(null);
     };
 
+    // ==================== SUBMIT HANDLER ====================
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!title || !description || !link) {
-            alert("Please fill all fields");
-            return;
+        const isArticle = activeTab === "articles";
+        const collectionName = isArticle ? null : activeTab === "coins" ? "coinProfiles" : "barProfiles";
+
+        try {
+            if (editingId) {
+                if (isArticle) {
+                    await updateArticle(editingId, {
+                        title: form.title,
+                        description: form.description,
+                        link: form.link
+                    });
+                } else {
+                    await updateDoc(doc(db, collectionName, editingId), form);
+                }
+                alert("Updated successfully!");
+            } else {
+                if (isArticle) {
+                    await addArticle({
+                        title: form.title,
+                        description: form.description,
+                        link: form.link
+                    });
+                } else {
+                    await addDoc(collection(db, collectionName), form);
+                }
+                alert("Added successfully!");
+            }
+
+            resetForm();
+            fetchData();
+        } catch (error) {
+            console.error(error);
+            alert("Failed to save.");
         }
+    };
 
-        await addArticle({
-            title,
-            description,
-            link,
-        });
+    const handleEdit = (item) => {
+        setEditingId(item.id);
+        setForm(item);
+    };
 
-        setTitle("");
-        setDescription("");
-        setLink("");
+    const handleDelete = async (id) => {
+        if (!window.confirm("Delete this item?")) return;
 
-        fetchArticles();
+        try {
+            if (activeTab === "articles") {
+                await deleteArticle(id);
+            } else {
+                const collectionName = activeTab === "coins" ? "coinProfiles" : "barProfiles";
+                await deleteDoc(doc(db, collectionName, id));
+            }
+            fetchData();
+        } catch (error) {
+            console.error(error);
+            alert("Failed to delete.");
+        }
     };
 
     return (
-      <div >
-        <AppHeader />
-        <div style={styles.pageContainer}>
+        <div>
+            <AppHeader />
+            <div style={{ maxWidth: 1200, margin: "40px auto", padding: "0 20px" }}>
+                <h1>Admin Dashboard</h1>
 
-          
-
-            {/* LEFT SIDE */}
-            <div style={styles.leftPanel}>
-                <h2 style={styles.heading}>Create Article</h2>
-
-                <form onSubmit={handleSubmit} style={styles.form}>
-
-                    <input
-                        type="text"
-                        placeholder="Article Title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        style={styles.input}
-                    />
-
-                    <textarea
-                        placeholder="Article Description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        style={styles.textarea}
-                    />
-
-                    <input
-                        type="text"
-                        placeholder="Article Link"
-                        value={link}
-                        onChange={(e) => setLink(e.target.value)}
-                        style={styles.input}
-                    />
-
-                    <button type="submit" style={styles.addButton}>
-                        Add Article
+                {/* Tabs */}
+                <div style={{ marginBottom: 25 }}>
+                    <button onClick={() => { setActiveTab("articles"); resetForm(); }} style={{ ...styles.tab, background: activeTab === "articles" ? "#1e1e1e" : "#ddd", color: activeTab === "articles" ? "white" : "black" }}>
+                        Articles
                     </button>
-                </form>
-            </div>
+                    <button onClick={() => { setActiveTab("coins"); resetForm(); }} style={{ ...styles.tab, background: activeTab === "coins" ? "#1e1e1e" : "#ddd", color: activeTab === "coins" ? "white" : "black" }}>
+                        Coins
+                    </button>
+                    <button onClick={() => { setActiveTab("bars"); resetForm(); }} style={{ ...styles.tab, background: activeTab === "bars" ? "#1e1e1e" : "#ddd", color: activeTab === "bars" ? "white" : "black" }}>
+                        Bars
+                    </button>
+                </div>
 
-            {/* RIGHT SIDE */}
-            <div style={styles.rightPanel}>
-                <h2 style={styles.heading}>Existing Articles</h2>
+                {/* Form */}
+                <div style={styles.formContainer}>
+                    <h2>
+                        {editingId ? "Edit" : "Add New"} {activeTab === "articles" ? "Article" : activeTab === "coins" ? "Coin" : "Bar"}
+                    </h2>
 
-                {articles.length === 0 ? (
-                    <p>No articles found.</p>
-                ) : (
-                    articles.map((article) => (
-                        <div
-                            key={article.id}
-                            style={styles.articleCard}
-                        >
-                            <h3>{article.title}</h3>
+                    <form onSubmit={handleSubmit} style={styles.form}>
+                        {activeTab === "articles" ? (
+                            <>
+                                <input type="text" placeholder="Title" value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} style={styles.input} required />
+                                <textarea placeholder="Description" value={form.description} onChange={(e) => setForm({...form, description: e.target.value})} style={styles.textarea} required />
+                                <input type="text" placeholder="Link" value={form.link} onChange={(e) => setForm({...form, link: e.target.value})} style={styles.input} required />
+                            </>
+                        ) : (
+                            <>
+                                <input name="name" value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} placeholder="Name" style={styles.input} required />
+                                <input name="idealFreq" type="number" value={form.idealFreq} onChange={(e) => setForm({...form, idealFreq: e.target.value})} placeholder="Ideal Frequency (Hz)" style={styles.input} required />
+                                <input name="tolerance" type="number" value={form.tolerance} onChange={(e) => setForm({...form, tolerance: e.target.value})} placeholder="Tolerance" style={styles.input} required />
+                                <input name="weight" type="number" value={form.weight} onChange={(e) => setForm({...form, weight: e.target.value})} placeholder="Weight (g)" style={styles.input} required />
+                                <input name="expectedDensity" type="number" step="0.01" value={form.expectedDensity} onChange={(e) => setForm({...form, expectedDensity: e.target.value})} placeholder="Expected Density" style={styles.input} required />
+                            </>
+                        )}
 
-                            <p style={styles.description}>
-                                {article.description}
-                            </p>
+                        <button type="submit" style={styles.submitButton}>
+                            {editingId ? "Update" : "Add"}
+                        </button>
+                    </form>
+                </div>
 
-                            <a
-                                href={article.link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={styles.link}
-                            >
-                                Visit Link
-                            </a>
+                {/* List */}
+                <h2 style={{ marginTop: 40 }}>
+                    {activeTab === "articles" ? "Articles" : activeTab === "coins" ? "Coins" : "Bars"}
+                </h2>
 
-                            <button
-                                onClick={() => handleDelete(article.id)}
-                                style={styles.deleteButton}
-                            >
-                                Delete
-                            </button>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "15px" }}>
+                    {(activeTab === "articles" ? articles : activeTab === "coins" ? coins : bars).map(item => (
+                        <div key={item.id} style={styles.card}>
+                            <h4>{activeTab === "articles" ? item.title : item.name}</h4>
+                            <p>{activeTab === "articles" ? item.description?.substring(0, 100) + "..." : `Freq: ${item.idealFreq} Hz`}</p>
+
+                            <div style={{ marginTop: 12 }}>
+                                <button onClick={() => handleEdit(item)} style={styles.editBtn}>Edit</button>
+                                <button onClick={() => handleDelete(item.id)} style={styles.deleteBtn}>Delete</button>
+                            </div>
                         </div>
-                    ))
-                )}
+                    ))}
+                </div>
             </div>
         </div>
-      </div>
-        
     );
 }
 
 export default AdminArticles;
 
 const styles = {
-    pageContainer: {
-        display: "flex",
-        gap: "25px",
-        width: "100%",
-        alignItems: "flex-start",
-        flexWrap: "wrap",
-    },
-
-    leftPanel: {
-        flex: 1,
-        minWidth: "320px",
-        backgroundColor: "white",
-        padding: "25px",
-        borderRadius: "15px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
-    },
-
-    rightPanel: {
-        flex: 2,
-        minWidth: "400px",
-        backgroundColor: "white",
-        padding: "25px",
-        borderRadius: "15px",
-        boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
-    },
-
-    heading: {
-        marginBottom: "20px",
-        color: "#1e2f4d",
-    },
-
-    form: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "15px",
-    },
-
-    input: {
-        padding: "12px",
-        borderRadius: "10px",
-        border: "1px solid #ccc",
-        fontSize: "14px",
-        width: "100%",
-        boxSizing: "border-box",
-    },
-
-    textarea: {
-        padding: "12px",
-        borderRadius: "10px",
-        border: "1px solid #ccc",
-        fontSize: "14px",
-        minHeight: "120px",
-        resize: "vertical",
-        width: "100%",
-        boxSizing: "border-box",
-    },
-
-    addButton: {
-        padding: "12px",
-        border: "none",
-        borderRadius: "10px",
-        backgroundColor: "#1e2f4d",
-        color: "white",
-        fontWeight: "bold",
-        cursor: "pointer",
-    },
-
-    articleCard: {
-        border: "1px solid #e5e5e5",
-        borderRadius: "12px",
-        padding: "20px",
-        marginBottom: "20px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "12px",
-    },
-
-    description: {
-        color: "#555",
-        lineHeight: "1.5",
-    },
-
-    link: {
-        color: "#4a63ff",
-        textDecoration: "none",
-        fontWeight: "bold",
-    },
-
-    deleteButton: {
-        width: "120px",
-        padding: "10px",
-        border: "none",
-        borderRadius: "10px",
-        backgroundColor: "#d9534f",
-        color: "white",
-        cursor: "pointer",
-        fontWeight: "bold",
-    },
+    tab: { padding: "12px 24px", marginRight: 10, border: "none", borderRadius: 8, cursor: "pointer" },
+    formContainer: { background: "#f9f9f9", padding: 25, borderRadius: 12, marginBottom: 30 },
+    form: { display: "flex", flexDirection: "column", gap: 12 },
+    input: { padding: 12, borderRadius: 8, border: "1px solid #ccc" },
+    textarea: { padding: 12, borderRadius: 8, border: "1px solid #ccc", minHeight: 100 },
+    submitButton: { padding: "12px", background: "#1e2f4d", color: "white", border: "none", borderRadius: 8, cursor: "pointer" },
+    card: { border: "1px solid #ddd", padding: 15, borderRadius: 10, background: "#fafafa" },
+    editBtn: { padding: "6px 12px", background: "#1976d2", color: "white", border: "none", borderRadius: 6, marginRight: 8 },
+    deleteBtn: { padding: "6px 12px", background: "#d32f2f", color: "white", border: "none", borderRadius: 6 }
 };

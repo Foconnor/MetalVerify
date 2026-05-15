@@ -6,6 +6,7 @@ export function ThreeTestProvider({ children }) {
     const [threeTestMode, setThreeTestMode] = useState(false);
     const [threeTestId, setThreeTestId] = useState(null);
     const [testsRemaining, setTestsRemaining] = useState(0);
+    const progress = testsRemaining > 0 ? (3 - testsRemaining) / 3 * 100 : 0;
 
     const generateThreeTestId = () => {
         return "3test_" + Date.now();

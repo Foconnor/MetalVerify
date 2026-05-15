@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { useAuth } from "../context/AuthContext";
-import PageLayout from "../components/layout/PageLayout";
-import AppHeader from "../components/layout/AppHeader";
 
 export default function InventoryItemDetail() {
     const { id } = useParams();
@@ -12,7 +10,9 @@ export default function InventoryItemDetail() {
     const { user } = useAuth();
 
     const [item, setItem] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [form, setForm] = useState({});
 
     useEffect(() => {
         if (!user || !id) return;
@@ -23,13 +23,15 @@ export default function InventoryItemDetail() {
                 const snapshot = await getDoc(itemRef);
 
                 if (snapshot.exists()) {
-                    setItem({ id: snapshot.id, ...snapshot.data() });
+                    const data = { id: snapshot.id, ...snapshot.data() };
+                    setItem(data);
+                    setForm(data);
                 } else {
-                    alert("Inventory item not found");
+                    alert("Item not found");
                     navigate("/inventory");
                 }
             } catch (error) {
-                console.error("Error fetching inventory item:", error);
+                console.error("Error fetching item:", error);
             } finally {
                 setLoading(false);
             }
@@ -38,47 +40,143 @@ export default function InventoryItemDetail() {
         fetchItem();
     }, [id, user, navigate]);
 
-    if (loading) return <p>Loading...</p>;
+    const handleChange = (e) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const handleSave = async () => {
+        if (!user) return;
+
+        try {
+            const itemRef = doc(db, "inventory", id);
+            await updateDoc(itemRef, form);
+
+            setItem(form);
+            setIsEditing(false);
+            alert("Item updated successfully!");
+        } catch (error) {
+            console.error("Error updating item:", error);
+            alert("Failed to update item.");
+        }
+    };
+
+    if (loading) return <p>Loading item details...</p>;
     if (!item) return <p>Item not found.</p>;
 
     return (
-        <PageLayout>
-            <AppHeader />
-            
-            <div style={{ maxWidth: 700, margin: "40px auto", padding: 20 }}>
-                <button onClick={() => navigate("/inventory")} style={{ marginBottom: 20 }}>
-                    ← Back to Inventory
+        <div style={{ maxWidth: 800, margin: "40px auto", padding: "0 20px" }}>
+            <button onClick={() => navigate("/inventory")} style={{ marginBottom: 20 }}>
+                ← Back to Inventory
+            </button>
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                <h1>{item.inventoryId}</h1>
+                <button
+                    onClick={() => setIsEditing(!isEditing)}
+                    style={{
+                        padding: "10px 20px",
+                        background: isEditing ? "#d32f2f" : "#1976d2",
+                        color: "white",
+                        border: "none",
+                        borderRadius: 8,
+                        cursor: "pointer"
+                    }}
+                >
+                    {isEditing ? "Cancel Editing" : "Edit Item"}
                 </button>
-
-                <h1>{item.name}</h1>
-
-                <div style={{ background: "#f9f9f9", padding: 20, borderRadius: 8 }}>
-                    <p><strong>Type:</strong> {item.type}</p>
-                    <p><strong>Year:</strong> {item.year || "—"}</p>
-                    <p><strong>Mint:</strong> {item.mint || "—"}</p>
-                    <p><strong>Metal:</strong> {item.metal}</p>
-                    <p><strong>Weight:</strong> {item.weight}</p>
-                    <p><strong>Diameter:</strong> {item.diameter}</p>
-
-                    {item.description1 && (
-                        <p><strong>Description:</strong> {item.description1}</p>
-                    )}
-
-                    {item.description2 && (
-                        <p><strong>Notes:</strong> {item.description2}</p>
-                    )}
-
-                    {item.serialNumber && (
-                        <p><strong>Serial Number:</strong> {item.serialNumber}</p>
-                    )}
-                </div>
-
-                {item.linkedThreeTestId && (
-                    <p style={{ marginTop: 20 }}>
-                        <strong>Linked 3-Test ID:</strong> {item.linkedThreeTestId}
-                    </p>
-                )}
             </div>
-        </PageLayout>
+
+            {isEditing ? (
+                // ==================== EDIT MODE ====================
+                <div style={{ background: "#f9f9f9", padding: 25, borderRadius: 12 }}>
+                    <div style={{ marginBottom: 15 }}>
+                        <label>Inventory ID</label>
+                        <input name="inventoryId" value={form.inventoryId || ""} onChange={handleChange} style={styles.input} />
+                    </div>
+
+                    <div style={{ marginBottom: 15 }}>
+                        <label>Description</label>
+                        <input name="description" value={form.description || ""} onChange={handleChange} style={styles.input} />
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 15 }}>
+                        <div>
+                            <label>Type</label>
+                            <select name="type" value={form.type || ""} onChange={handleChange} style={styles.input}>
+                                <option value="coin">Coin</option>
+                                <option value="round">Round</option>
+                                <option value="bar">Bar</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Year / Date</label>
+                            <input name="yearDate" value={form.yearDate || ""} onChange={handleChange} style={styles.input} />
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: 15 }}>
+                        <label>Mint / Refiner</label>
+                        <input name="mintRefiner" value={form.mintRefiner || ""} onChange={handleChange} style={styles.input} />
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 15 }}>
+                        <div>
+                            <label>Weight</label>
+                            <input name="weight" value={form.weight || ""} onChange={handleChange} style={styles.input} />
+                        </div>
+                        <div>
+                            <label>Purity</label>
+                            <input name="purity" value={form.purity || ""} onChange={handleChange} style={styles.input} />
+                        </div>
+                    </div>
+
+                    <div style={{ marginBottom: 15 }}>
+                        <label>Quantity</label>
+                        <input type="number" name="quantity" value={form.quantity || ""} onChange={handleChange} style={styles.input} />
+                    </div>
+
+                    <button onClick={handleSave} style={styles.saveButton}>Save Changes</button>
+                </div>
+            ) : (
+                // ==================== VIEW MODE ====================
+                <div style={{ background: "#f9f9f9", padding: 25, borderRadius: 12, lineHeight: 1.8 }}>
+                    <p><strong>Inventory ID:</strong> {item.inventoryId || "—"}</p>
+                    <p><strong>Type:</strong> {item.type?.toUpperCase() || "—"}</p>
+                    <p><strong>Description:</strong> {item.description}</p>
+                    <p><strong>Year / Date:</strong> {item.yearDate || "—"}</p>
+                    <p><strong>Mint / Refiner:</strong> {item.mintRefiner || "—"}</p>
+                    <p><strong>Weight:</strong> {item.weight || "—"}</p>
+                    <p><strong>Purity:</strong> {item.purity || "—"}</p>
+                    <p><strong>Quantity:</strong> {item.quantity || "—"}</p>
+                    <p><strong>Serial / Lot #:</strong> {item.serialLot || "—"}</p>
+                    <p><strong>Purchase Date:</strong> {item.purchaseDate || "—"}</p>
+                    <p><strong>Cost per oz:</strong> {item.currency || "$"}{item.costPerOz || "—"}</p>
+                    <p><strong>Total Cost:</strong> {item.currency || "$"}{item.totalCost || "—"}</p>
+                    <p><strong>Location:</strong> {item.location || "—"}</p>
+                    {item.notes && <p><strong>Notes:</strong> {item.notes}</p>}
+                </div>
+            )}
+        </div>
     );
 }
+
+const styles = {
+    input: {
+        width: "100%",
+        padding: 12,
+        margin: "8px 0",
+        borderRadius: 6,
+        border: "1px solid #ccc"
+    },
+    saveButton: {
+        marginTop: 20,
+        padding: "12px 24px",
+        backgroundColor: "#1e1e1e",
+        color: "white",
+        border: "none",
+        borderRadius: 8,
+        cursor: "pointer",
+        fontSize: 16,
+        width: "100%"
+    }
+};

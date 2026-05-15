@@ -3,38 +3,12 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useTestStore } from "../context/TestStoreContext";
-import Inventory from "./Inventory.jsx";
 
 export default function InventoryPage() {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
-    const styles = {
-        title: {
-            textAlign: "center",
-            marginBottom: "30px",
-        },
-
-        buttonContainer: {
-            display: "flex",
-            justifyContent: "space-between",
-            marginBottom: "40px",
-            gap: "10px",
-        },
-
-        button: {
-            flex: 1,
-            padding: "15px",
-            fontSize: "16px",
-            borderRadius: "10px",
-            border: "none",
-            cursor: "pointer",
-            backgroundColor: "#1e1e1e",
-            color: "white",
-        },
-    };
 
     useEffect(() => {
         if (!user) return;
@@ -64,59 +38,92 @@ export default function InventoryPage() {
     }, [user]);
 
     return (
-        <div style={{ maxWidth: 900, margin: "40px auto", padding: "0 20px" }}>
+        <div style={{ maxWidth: 1000, margin: "40px auto", padding: "0 20px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 30 }}>
                 <h1>My Inventory</h1>
 
-                {/* Add New Item Button - Top Right Corner */}
-                <button
-                    onClick={() => navigate("/inventory/add")}
-                    style={{
-                        padding: "12px 24px",
-                        backgroundColor: "#1e1e1e",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "8px",
-                        fontSize: "16px",
-                        cursor: "pointer",
-                        fontWeight: "bold"
-                    }}
-                >
-                    + Add New Item
-                </button>
+                <div style={{ display: "flex", gap: "12px" }}>
+                    <button
+                        onClick={() => navigate("/inventory/add")}
+                        style={{
+                            padding: "12px 24px",
+                            backgroundColor: "#1e1e1e",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "8px",
+                            fontSize: "16px",
+                            cursor: "pointer",
+                            fontWeight: "bold"
+                        }}
+                    >
+                        + Add New Item
+                    </button>
+
+                    <button
+                        onClick={() => navigate("/")}
+                        style={{
+                            padding: "12px 20px",
+                            backgroundColor: "#666",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "8px",
+                            fontSize: "16px",
+                            cursor: "pointer"
+                        }}
+                    >
+                        ← Return to Home
+                    </button>
+                </div>
             </div>
 
             {loading ? (
-                <p>Loading inventory...</p>
+                <p>Loading your inventory...</p>
             ) : items.length === 0 ? (
                 <p>You don't have any items in your inventory yet.</p>
             ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "20px" }}>
+                <div style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+                    gap: "20px"
+                }}>
                     {items.map(item => (
                         <div
                             key={item.id}
                             onClick={() => navigate(`/inventory/${item.id}`)}
                             style={{
-                                border: "1px solid #ccc",
-                                borderRadius: "10px",
+                                border: "1px solid #ddd",
+                                borderRadius: "12px",
                                 padding: "20px",
+                                backgroundColor: "#fafafa",
                                 cursor: "pointer",
-                                backgroundColor: "#f9f9f9"
+                                transition: "transform 0.2s",
+                                boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
                             }}
                         >
-                            <h3>{item.name}</h3>
-                            <p><strong>Type:</strong> {item.type}</p>
-                            <p><strong>Year:</strong> {item.year || "—"}</p>
-                            <p><strong>Mint/Refiner:</strong> {item.mintRefiner || "—"}</p>
-                            <p><strong>Weight:</strong> {item.weight}</p>
-                            {item.description1 && <p>{item.description1}</p>}
+                            {/* Inventory ID + Name - Prominent */}
+                            <div style={{ marginBottom: 12 }}>
+                                {item.inventoryId && (
+                                    <p style={{ fontSize: "0.95rem", color: "#555", margin: "0 0 4px 0" }}>
+                                        <strong>ID:</strong> {item.inventoryId}
+                                    </p>
+                                )}
+                                <h4 style={{ margin: "0 0 8px 0" }}>
+                                    {item.description || item.name || "Unnamed Item"}
+                                </h4>
+                            </div>
+
+                            <p><strong>Type:</strong> {item.type?.toUpperCase() || "—"}</p>
+                            <p><strong>Year:</strong> {item.yearDate || "—"}</p>
+                            <p><strong>Weight:</strong> {item.weight || "—"}</p>
+                            <p><strong>Mint / Refiner:</strong> {item.mintRefiner || "—"}</p>
+
+                            {item.serialLot && (
+                                <p><strong>Serial:</strong> {item.serialLot}</p>
+                            )}
                         </div>
                     ))}
                 </div>
             )}
-            <button style={styles.button} onClick={() => navigate("/")}>
-                Back to home
-            </button>
         </div>
     );
 }
