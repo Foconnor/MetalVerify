@@ -134,7 +134,7 @@ function BarDensityResult({ data, onReset }) {
                     onClick={handleAddToInventory}
                     style={{ backgroundColor: "#1e88e5", color: "white" }}
                 >
-                    Add To Inventory
+                    {user ? "Add To Inventory" : "Login to Save"}
                 </button>
             </div>
         </div>

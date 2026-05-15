@@ -493,7 +493,7 @@ export default function PingTest() {
                     fontSize: "16px"
                   }}
               >
-                Add To Inventory
+                {user ? "Add To Inventory" : "Login to Save"}
               </button>
             </div>
         )}
