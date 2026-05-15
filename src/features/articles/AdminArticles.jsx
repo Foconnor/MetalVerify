@@ -169,9 +169,21 @@ function AdminArticles() {
                             </>
                         )}
 
-                        <button type="submit" style={styles.submitButton}>
-                            {editingId ? "Update" : "Add"}
-                        </button>
+                        <div style={{ display: "flex", gap: 10 }}>
+                            <button type="submit" style={styles.submitButton}>
+                                {editingId ? "Update" : "Add"}
+                            </button>
+
+                            {editingId && (
+                                <button
+                                    type="button"
+                                    onClick={resetForm}
+                                    style={styles.cancelButton}
+                                >
+                                    Cancel
+                                </button>
+                            )}
+                        </div>
                     </form>
                 </div>
 
