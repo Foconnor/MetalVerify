@@ -161,7 +161,7 @@ export default function AddInventoryItem() {
             {/* Weight & Quantity */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: 15 }}>
                 <div>
-                    <label>Weight</label>
+                    <label>Weight (kg)</label>
                     <input type="number" name="weight" value={form.weight} onChange={handleChange} style={styles.input} min="1"/>
                 </div>
                 <div>
