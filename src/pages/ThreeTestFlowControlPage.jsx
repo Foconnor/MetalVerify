@@ -4,7 +4,7 @@ import AppHeader from "../components/layout/AppHeader.jsx";
 //tests
 import PingTest from "../features/ping/Pingtest.jsx";
 import DensityTest from "../features/density/DensityTest.jsx";
-import MagnetTest from "../../features/magnet/MagnetTest";
+import MagnetTest from "../features/magnet/MagnetTest";
 
 import { useNavigate, useLocation } from "react-router-dom";
 
