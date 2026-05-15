@@ -24,6 +24,9 @@ function PingPage() {
         </button>
       </div>
 
+      <button style={styles.button} onClick={() => navigate("/density")}>
+        Next Test
+      </button>
       <h2>Ping Test</h2>
       <PingTest />
     </PageLayout>

@@ -38,6 +38,8 @@ export default function PingTest() {
   const audioCtxRef = useRef(null);
   const analyserRef = useRef(null);
   const streamRef = useRef(null);
+  const { threeTestMode, testsRemaining } = useThreeTest();
+
 
   // useEffect(() => {
   //   if (selectedType === "coin" && coins.length > 0 && !selectedCoinId) {
@@ -335,9 +337,24 @@ export default function PingTest() {
   }
 
 
+
   return (
       <div style={box}>
         <h2>Silver Ping Test</h2>
+
+        {threeTestMode && (
+            <div style={{ marginBottom: 20, textAlign: "center" }}>
+              <p><strong>3-Test Mode Active</strong> — {testsRemaining} remaining</p>
+              <div style={{ height: 8, background: "#ddd", borderRadius: 4, overflow: "hidden" }}>
+                <div style={{
+                  height: "100%",
+                  width: `${((3 - testsRemaining) / 3) * 100}%`,
+                  background: "linear-gradient(to right, #4caf50, #2196f3)",
+                  transition: "width 0.4s"
+                }} />
+              </div>
+            </div>
+        )}
         {/*<select*/}
         {/*    value={selectedType}*/}
         {/*    onChange={(e) => setSelectedType(e.target.value)}*/}
@@ -404,12 +421,8 @@ export default function PingTest() {
                 Confidence:{" "}
                 <strong
                     style={{
-                      color:
-                          metrics.confidence >= 70
-                              ? "green"
-                              : metrics.confidence >= 50
-                                  ? "orange"
-                                  : "red"
+                      color: metrics.confidence >= 70 ? "green" :
+                          metrics.confidence >= 50 ? "orange" : "red"
                     }}
                 >
                   {metrics.confidence}%
@@ -421,34 +434,41 @@ export default function PingTest() {
                     style={{
                       ...progressInner,
                       width: `${metrics.confidence}%`,
-                      background:
-                          metrics.confidence >= 70
-                              ? "green"
-                              : metrics.confidence >= 50
-                                  ? "orange"
-                                  : "red"
+                      background: metrics.confidence >= 70 ? "green" :
+                          metrics.confidence >= 50 ? "orange" : "red"
                     }}
                 />
               </div>
 
-
-              <p
-                  style={{
-                    marginTop: 10,
-                    fontWeight: "bold",
-                    fontSize: 18,
-                    color:
-                        metrics.confidence >= 70
-                            ? "green"
-                            : metrics.confidence >= 50
-                                ? "orange"
-                                : "red"
-                  }}
-              >
+              <p style={{
+                marginTop: 10,
+                fontWeight: "bold",
+                fontSize: 18,
+                color: metrics.confidence >= 70 ? "green" :
+                    metrics.confidence >= 50 ? "orange" : "red"
+              }}>
                 {result}
               </p>
+
+              {/* ✅ Improved Add To Inventory Button with Login Check */}
               <button
-                  onClick={() =>
+                  onClick={() => {
+                    if (!user) {
+                      // Redirect to login and pass the current test data
+                      navigate("/login", {
+                        state: {
+                          from: "/inventory/add",
+                          testData: {
+                            type: "ping",
+                            profileName: selectedProfile?.name,
+                            result: result,
+                            confidence: metrics?.confidence,
+                            threeTestId: threeTestId
+                          }
+                        }
+                      });
+                    } else {
+                      // User is logged in → go directly to add inventory
                       navigate("/inventory/add", {
                         state: {
                           testData: {
@@ -459,13 +479,22 @@ export default function PingTest() {
                             threeTestId: threeTestId
                           }
                         }
-                      })
-                  }
-                  style={{ marginTop: "15px", padding: "10px 20px" }}
+                      });
+                    }
+                  }}
+                  style={{
+                    marginTop: "15px",
+                    padding: "12px 24px",
+                    backgroundColor: "#1e88e5",
+                    color: "white",
+                    border: "none",
+                    borderRadius: 8,
+                    cursor: "pointer",
+                    fontSize: "16px"
+                  }}
               >
                 Add To Inventory
               </button>
-
             </div>
         )}
       </div>

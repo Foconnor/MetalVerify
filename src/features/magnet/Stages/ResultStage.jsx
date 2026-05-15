@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTestStore } from "../../../context/TestStoreContext";   // ← FIXED PATH
+import { useTestStore } from "../../../context/TestStoreContext";
+import { useAuth } from "../../../context/AuthContext";   // ← Added
 
 import MagnetTestResult from "../Animation/MagnetTestResult";
 
 function ResultStage({ onResult }) {
     const navigate = useNavigate();
     const { selectedItem } = useTestStore();
+    const { user } = useAuth();                     // ← Added
 
     const [result, setResult] = useState("");
 
@@ -27,16 +29,27 @@ function ResultStage({ onResult }) {
     };
 
     const handleAddToInventory = () => {
-        navigate("/inventory/add", {
-            state: {
-                testData: {
-                    type: "magnet",
-                    profileName: selectedItem?.name || "Unknown Item",
-                    result: result,
-                    confidence: result === "slow" ? 85 : result === "fast" ? 50 : 30,
+        const testData = {
+            type: "magnet",
+            profileName: selectedItem?.name || "Unknown Item",
+            result: result,
+            confidence: result === "slow" ? 85 : result === "fast" ? 50 : 30,
+        };
+
+        if (!user) {
+            // Redirect to login and remember where to go after
+            navigate("/login", {
+                state: {
+                    from: "/inventory/add",
+                    testData: testData
                 }
-            }
-        });
+            });
+        } else {
+            // User is logged in → go directly to inventory
+            navigate("/inventory/add", {
+                state: { testData: testData }
+            });
+        }
     };
 
     return (

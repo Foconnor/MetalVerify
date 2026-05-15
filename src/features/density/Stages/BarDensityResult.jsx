@@ -1,174 +1,144 @@
-import { useEffect, useState } from "react";
-import { saveDensityTest } from '../../Account/DatabaseCode.js';
-import { saveScan } from '../../../firebase/saveScan.js';
-import { getAuth } from "firebase/auth";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTestStore } from "../../../context/TestStoreContext";
+import { useAuth } from "../../../context/AuthContext";
 
-function BarDensityResult({ data, onReset}) {
-  const [barPosition, setBarPosition] = useState(50);
-  const user = getAuth().currentUser;
+function BarDensityResult({ data, onReset }) {
     const navigate = useNavigate();
+    const { selectedItem } = useTestStore();
+    const { user } = useAuth();
 
-  console.log("BarDensityResult received data:", data);
+    const [barPosition, setBarPosition] = useState(50);
 
-  const calculateBarPosition = (density) => {
-    const EXPECTED =
-      data.selectedBarData !== null ? data.selectedBarData.expectedDensity : 10.49;
+    const calculateBarPosition = (density) => {
+        const EXPECTED = data.selectedBarData?.expectedDensity || 10.49;
+        const MAX_RANGE = 2;
+        const deviation = parseFloat(density) - EXPECTED;
+        const position = 50 + (deviation / MAX_RANGE) * 50;
+        return Math.min(100, Math.max(0, position));
+    };
 
-    const MAX_RANGE = 2;
-    const deviation = parseFloat(density) - EXPECTED;
-    const position = 50 + (deviation / MAX_RANGE) * 50;
+    const getResultVerdict = (confidence) => {
+        if (confidence >= 90) return "Highly Likely Genuine";
+        if (confidence >= 70) return "Likely Genuine";
+        if (confidence >= 50) return "Uncertain";
+        if (confidence >= 30) return "Likely Fake";
+        return "Very Likely Fake";
+    };
 
-    return Math.min(100, Math.max(0, position));
-  };
+    const handleUpload = () => {
+        // Your existing save logic...
+        if (user) {
+            const testData = {
+                itemType: "bar",
+                profileName: data.selectedBarData ? data.selectedBarData.name : "Unknown Profile",
+                metrics: {
+                    length: parseInt(data.input?.length || 0),
+                    width: parseInt(data.input?.width || 0),
+                    height: parseInt(data.input?.height || 0),
+                    weight: parseFloat(data.input?.weight || 0),
+                    density: parseFloat(data.results?.density || 0)
+                },
+                results: {
+                    confidence: parseInt(data.results?.confidence || 0),
+                    verdict: getResultVerdict(data.results?.confidence || 0)
+                }
+            };
 
-  const getResultVerdict = (confidence) => {
-    let verdict = "";
-    if (confidence >= 90) verdict = "Highly Likely Genuine";
-    else if (confidence >= 70) verdict = "Likely Genuine";
-    else if (confidence >= 50) verdict = "Uncertain";
-    else if (confidence >= 30) verdict = "Likely Fake";
-    else verdict = "Very Likely Fake";
+            // ... your saveDensityTest and saveScan calls
+        }
+    };
 
-    return verdict;
-  }
+    // Calculate bar position
+    useEffect(() => {
+        if (data.results?.density) {
+            const position = calculateBarPosition(data.results.density);
+            setBarPosition(position);
+        }
+    }, [data.results?.density]);
 
-  const handleUpload = () => {
-    // Saving to database
-    if (user) {
+    const handleAddToInventory = () => {
         const testData = {
-            itemType: "bar",
-            profileName: data.selectedBarData ? data.selectedBarData.name : "Unknown Profile",
-            
-            metrics: { 
-                length: parseInt(data.input.length), 
-                width: parseInt(data.input.width), 
-                height: parseInt(data.input.height), 
-                weight: parseFloat(data.input.weight),
-                density: parseFloat(data.results.density)
-            },
-            
-            results: {
-                confidence: parseInt(data.results.confidence),
-                verdict: getResultVerdict(data.results.confidence)
-            }
+            type: "density",
+            profileName: selectedItem?.name || data.selectedBarData?.name || "Unknown Bar",
+            result: getResultVerdict(data.results?.confidence || 0),
+            confidence: data.results?.confidence || 0,
         };
-            
-            
 
-        saveDensityTest({
-            ...testData,
-        });
-        console.log("Density test saved successfully. Data:", {
-            density: data.results.density,
-            confidence: data.results.confidence,
-            threeTestId: data.threeTestId,
-            label: data.label
-        });
+        if (!user) {
+            navigate("/login", {
+                state: {
+                    from: "/inventory/add",
+                    testData: testData
+                }
+            });
+        } else {
+            navigate("/inventory/add", {
+                state: { testData: testData }
+            });
+        }
+    };
 
-        saveScan({
-          userId: user.uid,
-          testType: "density",
-          metalType: data.itemType,
-          profileName: data.selectedBarData ? data.selectedBarData.name : "Unknown Profile",
-          result: getResultVerdict(data.results.confidence),
-          frequency: data.frequency || null,
-          duration: data.duration || null,
-          confidence: data.results.confidence || null,
-        });
-    }
-  };
+    return (
+        <div>
+            <h2>Bar Results</h2>
 
-  useEffect(() => {
-    if (data.results.density !== null) {
-      const position = calculateBarPosition(data.results.density);
-      setBarPosition(position);
-    }
-  }, [data.results.density]);
+            {data.results?.confidence !== null && (
+                <div style={{
+                    marginTop: "1rem",
+                    width: "260px",
+                    margin: "0 auto",
+                    textAlign: "center"
+                }}>
+                    {/* Gradient bar */}
+                    <div style={{
+                        position: "relative",
+                        height: "14px",
+                        borderRadius: "8px",
+                        background: "linear-gradient(to right, red, yellow, green, yellow, red)"
+                    }}>
+                        <div style={{
+                            position: "absolute",
+                            top: "-4px",
+                            left: `calc(${barPosition}% - 2px)`,
+                            width: "4px",
+                            height: "22px",
+                            backgroundColor: "#0c0a0a"
+                        }} />
+                    </div>
 
-  return (
-    <div>
-      <h2>Bar Results</h2>
+                    <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        fontSize: "0.75rem",
+                        marginTop: "4px",
+                        color: "#ccc"
+                    }}>
+                        <span>LOW</span>
+                        <span>PERFECT</span>
+                        <span>HIGH</span>
+                    </div>
 
-      {data.results.confidence !== null && (
-        <div
-          style={{
-            marginTop: "1rem",
-            width: "260px",
-            margin: "0 auto",
-            textAlign: "center"
-          }}
-        >
-          {/* Gradient bar */}
-          <div
-            style={{
-              position: "relative",
-              height: "14px",
-              borderRadius: "8px",
-              background:
-                "linear-gradient(to right, red, yellow, green, yellow, red)"
-            }}
-          >
-            {/* Marker */}
-            <div
-              style={{
-                position: "absolute",
-                top: "-4px",
-                left: `calc(${barPosition}% - 2px)`,
-                width: "4px",
-                height: "22px",
-                backgroundColor: "#0c0a0a"
-              }}
-            />
-          </div>
+                    <p style={{ marginTop: "0.5rem" }}>
+                        Confidence: <strong style={{ fontSize: "2.8rem" }}>
+                        {data.results.confidence}%
+                    </strong>
+                    </p>
+                </div>
+            )}
 
-          {/* Labels */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontSize: "0.75rem",
-              marginTop: "4px",
-              color: "#ccc"
-            }}
-          >
-            <span>LOW</span>
-            <span>PERFECT</span>
-            <span>HIGH</span>
-          </div>
-
-          <p style={{ marginTop: "0.5rem" }}>
-            Confidence:{" "}
-            <strong style={{ fontSize: "2.8rem" }}>
-              {data.results.confidence}%
-            </strong>
-          </p>
+            <div style={{ marginTop: "25px", display: "flex", gap: "10px", justifyContent: "center" }}>
+                <button onClick={onReset}>Test Again</button>
+                <button onClick={handleUpload}>Save Result</button>
+                <button
+                    onClick={handleAddToInventory}
+                    style={{ backgroundColor: "#1e88e5", color: "white" }}
+                >
+                    Add To Inventory
+                </button>
+            </div>
         </div>
-      )}
-
-      <button onClick={onReset}>Test Again</button>
-      <button onClick={handleUpload} style={{ marginLeft: "1rem" }}>
-        Save Result
-      </button>
-        <button
-            onClick={() =>
-                navigate("/inventory/add", {
-                    state: {
-                        testData: {
-                            type: "density",
-                            profileName: selectedProfile?.name,
-                            result: result,
-                            confidence: metrics?.confidence,
-                            threeTestId: activeThreeTestId,
-                        },
-                    },
-                })
-            }
-        >
-            Add To Inventory
-        </button>
-    </div>
-  );
+    );
 }
 
 export default BarDensityResult;

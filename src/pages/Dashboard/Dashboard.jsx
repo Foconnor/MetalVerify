@@ -83,19 +83,43 @@ function Dashboard({ onNavigate }) {
             <h2>Recent Scans</h2>
 
             {recentTests.length === 0 ? (
-              <p>No tests yet.</p>
+                <p>No tests yet.</p>
             ) : (
-              <div style={styles.cardsGrid}>
-                {recentTests.map((test, i) => (
-                  <div key={i} style={styles.testCard}>
-                    <p><strong>{test.type}</strong></p>
-                    <p>{test.itemType}</p>
-                    <p>{test.results.confidence}%</p>
-                  </div>
-                ))}
-              </div>
-            )}
+                <div style={styles.cardsGrid}>
+                  {recentTests.map((test, i) => (
+                      <div key={i} style={styles.testCard}>
+                        <p style={{ fontSize: "0.9rem", color: "#666", margin: "0 0 8px 0" }}>
+                          {test.type.toUpperCase()} TEST
+                        </p>
 
+                        <h4 style={{ margin: "5px 0 8px 0" }}>
+                          {test.profileName || test.itemType || "Unknown Item"}
+                        </h4>
+
+                        {test.results?.verdict && (
+                            <p style={{
+                              fontWeight: "bold",
+                              color: test.results.confidence >= 70 ? "green" :
+                                  test.results.confidence >= 50 ? "orange" : "red",
+                              margin: "6px 0"
+                            }}>
+                              {test.results.verdict}
+                            </p>
+                        )}
+
+                        <p style={{ margin: "4px 0" }}>
+                          Confidence: <strong>{test.results?.confidence || test.confidence || "—"}%</strong>
+                        </p>
+
+                        {test.createdAt && (
+                            <p style={{ fontSize: "0.8rem", color: "#888", marginTop: "8px" }}>
+                              {new Date(test.createdAt.seconds * 1000).toLocaleDateString()}
+                            </p>
+                        )}
+                      </div>
+                  ))}
+                </div>
+            )}
             <button onClick={() => navigate("/history")} style={styles.button}>
               View History
             </button>
