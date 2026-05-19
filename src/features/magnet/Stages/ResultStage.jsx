@@ -13,6 +13,11 @@ function ResultStage({ onResult }) {
     const [result, setResult] = useState("");
 
     const handleSave = () => {
+        if (!user) {
+            // Redirect to login and remember where to go after
+            navigate("/login", {
+            });
+        }
         if (!result) return;
 
         let verdict = "";
@@ -69,14 +74,14 @@ function ResultStage({ onResult }) {
 
             <div style={{ marginTop: "25px", display: "flex", gap: "10px", justifyContent: "center" }}>
                 <button onClick={handleSave}>
-                    Save Result
+                    {user ? "Save Result to History" : "Login to Save to History"}
                 </button>
 
                 <button
                     onClick={handleAddToInventory}
                     style={{ backgroundColor: "#1e88e5", color: "white" }}
                 >
-                    {user ? "Add To Inventory" : "Login to Save"}
+                    {user ? "Add To Inventory" : "Login to Save to Inventory"}
                 </button>
             </div>
         </div>
