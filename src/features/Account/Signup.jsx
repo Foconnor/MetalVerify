@@ -127,7 +127,8 @@ function Signup() {
       <button style={{ marginTop: "10px" }} onClick={loginFacebook}>Sign in with Facebook</button>
       <button style={{ marginTop: "10px" }} onClick={loginMicrosoft}>Sign in with Microsoft</button>
       <button style={{ marginTop: "10px" }} onClick={loginTwitter}>Sign in with Twitter</button>
-      
+      <button style={{ marginTop: "10px" }} onClick={() => navigate("/login")}>Already have an account?</button>
+
     </div>
   );
 }

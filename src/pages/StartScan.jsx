@@ -4,12 +4,13 @@ import { useThreeTest } from "../context/ThreeTestContext"
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { useTestStore } from "../context/TestStoreContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function StartScan() {
     const navigate = useNavigate();
     const { startThreeTest } = useThreeTest();
     const { setSelectedItem } = useTestStore();
-
+    const { user } = useAuth();
     const [coins, setCoins] = useState([]);
     const [bars, setBars] = useState([]);
 
@@ -45,6 +46,18 @@ export default function StartScan() {
         }
 
         navigate(`/${selectedTest}`);
+    };
+
+    const toggleThreeTest = () => {
+        if (!user) {
+            navigate("/login", {
+                state: {
+                    message: "Login to do Three-Test"
+                }
+            });
+            return;
+        }
+        setEnableThreeTest(!enableThreeTest);
     };
 
     //fetch Bars
@@ -194,10 +207,12 @@ export default function StartScan() {
                     style={{
                         ...styles.optionButton,
                         ...(enableThreeTest ? styles.selectedButton : {}),
+                        backgroundColor: !user ? "#f57c00" : (enableThreeTest ? "#1d3557" : "#f1f1f1"),
+                        color: !user ? "white" : (enableThreeTest ? "white" : "black")
                     }}
-                    onClick={() => setEnableThreeTest(!enableThreeTest)}
+                    onClick={toggleThreeTest}
                 >
-                    {enableThreeTest ? "3-Test Mode: ON" : "3-Test Mode: OFF"}
+                    {!user ? "Login to do Three-Test" : enableThreeTest ? "3-Test Mode: ON" : "Enable 3-Test Mode"}
                 </button>
 
                 <button style={styles.button} onClick={handleStart}>
